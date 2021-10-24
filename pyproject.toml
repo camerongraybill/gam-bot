@@ -5,6 +5,9 @@ description = "A fun discord bot for my discord server"
 authors = ["Cameron Graybill <camerongraybill@gmail.com>"]
 license = "MIT"
 
+[tool.poetry.scripts]
+run_bot = "gam_bot.__main__:main"
+
 [tool.poetry.dependencies]
 python = "^3.10"
 "discord.py" = "^1.7.3"

@@ -18,7 +18,9 @@ jobs:
       with:
         python-version: "3.10.0"
     - name: Set up environment
-      run: poetry install
+      run: |
+        pip install poetry
+        poetry install
     - name: Running Black
       run: poetry run black ./gam_bot --check
 

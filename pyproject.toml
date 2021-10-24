@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "gam_bot"
-version = "0.1.0"
+version = "0.0.0"
 description = "A fun discord bot for my discord server"
 authors = ["Cameron Graybill <camerongraybill@gmail.com>"]
 license = "MIT"
@@ -12,5 +12,10 @@ python = "^3.10"
 [tool.poetry.dev-dependencies]
 
 [build-system]
-requires = ["poetry-core>=1.0.0"]
+requires = ["poetry-core>=1.0.0", "poetry-dynamic-versioning"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.poetry-dynamic-versioning]
+enable = true
+vcs = "git"
+style = "semver"

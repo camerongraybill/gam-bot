@@ -41,3 +41,5 @@ COPY --from=build-image --chown=run:users /venv /venv
 USER run:users
 # Configure environment to run
 ENV PATH=/venv/bin:$PATH
+EXPOSE 8001
+ENTRYPOINT run_bot

@@ -3,8 +3,8 @@ from logging import getLogger
 import discord
 from discord import Message, GroupChannel, TextChannel
 
-from gam_bot.easy_messages import easy_message_processor
-from gam_bot.settings import TRIGGER
+from .easy_messages import easy_message_processor
+from django.conf import settings
 
 logger = getLogger(__name__)
 
@@ -12,8 +12,8 @@ logger = getLogger(__name__)
 class Bot(discord.Client):
     @staticmethod
     async def on_message(message: Message) -> None:
-        if message.content.startswith(TRIGGER):
-            stripped_content = message.content.strip().removeprefix(TRIGGER)
+        if message.content.startswith(settings.TRIGGER):
+            stripped_content = message.content.strip().removeprefix(settings.TRIGGER)
             logger.info("Got message %s", message)
             if easy_response := easy_message_processor(
                 stripped_content,

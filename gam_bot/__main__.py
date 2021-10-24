@@ -3,7 +3,8 @@ from asyncio import ensure_future
 from aiohttp.abc import Application
 from aiohttp.web import run_app
 
-from gam_bot.settings import DISCORD_KEY, PORT, HOST
+from .db import init_db
+from .settings import DISCORD_KEY, PORT, HOST
 from .logs import setup_logging
 
 
@@ -14,6 +15,7 @@ from .webserver import get_app
 
 
 async def app_factory() -> Application:
+    await init_db()
     ensure_future(Bot().start(DISCORD_KEY))
 
     return get_app()

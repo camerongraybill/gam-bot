@@ -25,3 +25,5 @@ TRIGGER = "!"
 
 PORT = int(environ.get("PORT", 8081))
 HOST = "0.0.0.0"  # nosec
+
+DB_CONN_STR = environ.get("DB_CONN_STR", "sqlite://db.sqlite3")

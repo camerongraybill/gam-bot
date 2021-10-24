@@ -14,7 +14,7 @@ DATABASES = {
         "NAME": "gam",
         "USER": "gam",
         "PASSWORD": environ["DB_PASSWORD"],
-        "HOST": environ["DB_DB_HOST"],
+        "HOST": environ["DB_HOST"],
         "PORT": 5432,
     }
 }

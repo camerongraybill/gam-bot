@@ -30,9 +30,5 @@ DB_CONN_STR = environ.get("DB_CONN_STR", "sqlite://db.sqlite3")
 
 TORTOISE_ORM = {
     "connections": {"default": DB_CONN_STR},
-    "apps": {
-        "models": {
-            "models": ["gam_bot.models", "aerich.models"]
-        }
-    }
+    "apps": {"models": {"models": ["gam_bot.models", "aerich.models"]}},
 }

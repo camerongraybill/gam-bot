@@ -18,15 +18,15 @@ logger = getLogger(__name__)
 
 async def startup(app: web.Application):
     await init_db()
-    app['discord_bot'] = Bot()
-    app['bot_task'] = create_task(app['discord_bot'].start(DISCORD_KEY))
+    app["discord_bot"] = Bot()
+    app["bot_task"] = create_task(app["discord_bot"].start(DISCORD_KEY))
 
 
 async def shutdown(app: web.Application):
     await close_db()
-    await app['discord_bot'].close()
-    app['bot_task'].cancel()
-    await app['bot_task']
+    await app["discord_bot"].close()
+    app["bot_task"].cancel()
+    await app["bot_task"]
 
 
 def main() -> None:
@@ -36,7 +36,7 @@ def main() -> None:
     try:
         run_app(app, host=HOST, port=PORT)
     except RuntimeError as e:
-        if 'Event loop is closed' not in str(e):
+        if "Event loop is closed" not in str(e):
             raise
 
 

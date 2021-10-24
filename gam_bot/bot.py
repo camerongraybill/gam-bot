@@ -16,7 +16,10 @@ class Bot(discord.Client):
             stripped_content = message.content.strip().removeprefix(TRIGGER)
             logger.info("Got message %s", message)
             if easy_response := easy_message_processor(
-                stripped_content, message.channel.name if isinstance(message.channel, (TextChannel, GroupChannel)) else None
+                stripped_content,
+                message.channel.name
+                if isinstance(message.channel, (TextChannel, GroupChannel))
+                else None,
             ):
                 for response in easy_response:
                     await message.channel.send(response)

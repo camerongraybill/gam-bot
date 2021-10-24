@@ -22,3 +22,6 @@ EASY_MESSAGES: Sequence[Tuple[Optional[Sequence[str]], str, Sequence[str]]] = (
 )
 
 TRIGGER = "!"
+
+PORT = 8001
+HOST = "0.0.0.0"  # nosec

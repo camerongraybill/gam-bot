@@ -10,5 +10,6 @@ from .bot import Bot
 def main() -> None:
     Bot().run(settings.DISCORD_KEY)
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     main()

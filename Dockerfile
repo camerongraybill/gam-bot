@@ -24,6 +24,7 @@ COPY ./poetry.lock ./poetry.lock
 COPY ./pyproject.toml ./pyproject.toml
 RUN ./tools_venv/bin/poetry export -f 'requirements.txt' -o ./requirements.txt --without-hashes
 RUN PATH=/home/build/tools_venv/bin:$PATH /venv/bin/pip install -r ./requirements.txt
+RUN ./tools_venv/bin/pip install poetry-dynamic-versioning==0.13.1
 
 # Copy in all source code so we can build the wheel
 COPY --chown=build:users . ./src/

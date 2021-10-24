@@ -19,4 +19,5 @@ jobs:
         python3 -m venv ./venv
         ./venv/bin/pip install poetry==1.1.11 poetry-dynamic-versioning==0.13.1
         APP_VERSION=$(./venv/bin/poetry version -s)
-        docker build . --file Dockerfile --tag gam-bot:$APP_VERSION
+        CHECKOUT=$(git rev-parse HEAD)
+        docker build . --file Dockerfile --tag gam-bot:$CHECKOUT

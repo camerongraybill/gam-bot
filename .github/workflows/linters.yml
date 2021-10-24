@@ -1,4 +1,4 @@
-name: Security Checker
+name: Linting
 
 on:
   push:
@@ -22,4 +22,12 @@ jobs:
         pip install poetry
         poetry install
     - name: Running Bandit
-      run: poetry run bandit
+      run: poetry run bandit -r ./gam_bot
+    - name: Running Black
+      run: poetry run black ./gam_bot --check
+    - name: Running Mypy
+      run: poetry run mypy
+    - name: Running Pylint
+      run: poetry run pylint --rcfile ./pyproject.toml ./gam_bot/
+    - name: Running Pytest
+      run: poetry run pytest

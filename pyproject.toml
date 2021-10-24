@@ -24,3 +24,9 @@ build-backend = "poetry.core.masonry.api"
 enable = true
 vcs = "git"
 style = "semver"
+
+[tool.mypy]
+files = "gam_bot"
+
+[tool.pylint.MASTER]
+disable="C"

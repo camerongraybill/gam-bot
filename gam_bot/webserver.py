@@ -1,3 +1,6 @@
+from .aiohttp_fixes import patch_gather
+patch_gather()
+
 from aiohttp import web
 
 routes = web.RouteTableDef()

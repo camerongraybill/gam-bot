@@ -10,6 +10,11 @@ python = "^3.10"
 "discord.py" = "^1.7.3"
 
 [tool.poetry.dev-dependencies]
+black = "^21.9b0"
+mypy = "^0.910"
+pylint = "^2.11.1"
+bandit = "^1.7.0"
+pytest = "^6.2.5"
 
 [build-system]
 requires = ["poetry-core>=1.0.0", "poetry-dynamic-versioning"]
@@ -19,3 +24,9 @@ build-backend = "poetry.core.masonry.api"
 enable = true
 vcs = "git"
 style = "semver"
+
+[tool.mypy]
+files = "gam_bot"
+
+[tool.pylint.MASTER]
+disable="C"

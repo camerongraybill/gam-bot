@@ -1,0 +1,33 @@
+name: Linting
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Python 3.10
+      uses: actions/setup-python@v2
+      with:
+        python-version: "3.10.0"
+    - name: Set up environment
+      run: |
+        pip install poetry
+        poetry install
+    - name: Running Bandit
+      run: poetry run bandit -r ./gam_bot
+    - name: Running Black
+      run: poetry run black ./gam_bot --check
+    - name: Running Mypy
+      run: poetry run mypy
+    - name: Running Pylint
+      run: poetry run pylint --rcfile ./pyproject.toml ./gam_bot/
+    - name: Running Pytest
+      run: poetry run pytest

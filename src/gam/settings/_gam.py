@@ -19,7 +19,7 @@ EASY_MESSAGES: Sequence[Tuple[Optional[Sequence[str]], str, Sequence[str]]] = (
         "thank",
         ("https://camerongraybill.dev/thank-you-for-your-service.jpg",),
     ),
-    (None, "version", (f"Gam bot version {get_distribution('gam_bot').version}",)),
+    (None, "version", (f"Gam bot version v{get_distribution('gam_bot').version}",)),
 )
 
 TRIGGER = "!"

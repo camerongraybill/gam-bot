@@ -9,7 +9,6 @@ class Command(BaseCommand):
 
     # pylint: disable=unused-argument
     def handle(self, *args: Any, **options: Any) -> None:
-        assert settings.DISCORD_KEY is not None
         if settings.DISCORD_KEY is None:
             raise Exception("DISCORD_KEY is not set")
         Bot().run(settings.DISCORD_KEY)

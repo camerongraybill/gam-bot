@@ -2,7 +2,7 @@ from os import environ
 from typing import Sequence, Tuple, Optional
 from pkg_resources import get_distribution
 
-DISCORD_KEY = environ["DISCORD_KEY"]
+DISCORD_KEY = environ.get("DISCORD_KEY", None)
 
 EASY_MESSAGES: Sequence[Tuple[Optional[Sequence[str]], str, Sequence[str]]] = (
     (
@@ -27,3 +27,12 @@ PORT = int(environ.get("PORT", 8081))
 HOST = "0.0.0.0"  # nosec
 
 DB_CONN_STR = environ.get("DB_CONN_STR", "sqlite://db.sqlite3")
+
+TORTOISE_ORM = {
+    "connections": {"default": DB_CONN_STR},
+    "apps": {
+        "models": {
+            "models": ["gam_bot.models", "aerich.models"]
+        }
+    }
+}

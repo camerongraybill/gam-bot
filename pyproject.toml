@@ -12,6 +12,7 @@ run_bot = "gam_bot.__main__:main"
 python = "^3.10"
 "discord.py" = "^1.7.3"
 tortoise-orm = {extras = ["asyncpg"], version = "^0.17.8"}
+aerich = "^0.5.8"
 
 [tool.poetry.dev-dependencies]
 black = "^21.9b0"

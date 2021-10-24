@@ -1,10 +1,10 @@
 from tortoise import Tortoise
 
-from gam_bot.settings import DB_CONN_STR
+from gam_bot.settings import TORTOISE_ORM
 
 
 async def init_db() -> None:
-    await Tortoise.init(db_url=DB_CONN_STR, modules={"models": ["gam_bot.models"]})
+    await Tortoise.init(TORTOISE_ORM)
     await Tortoise.generate_schemas()
 
 

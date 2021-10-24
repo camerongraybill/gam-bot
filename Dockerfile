@@ -38,7 +38,10 @@ RUN PATH=/home/build/tools_venv/bin:$PATH /venv/bin/pip install ./dist/*.whl
 FROM just-python as runtime-image
 RUN useradd -ms /bin/bash run
 COPY --from=build-image --chown=run:users /venv /venv
+COPY --chown=run:users migrations /migrations
+COPY --chown=run:users aerich.ini /aerich.ini
 USER run:users
 # Configure environment to run
 ENV PATH=/venv/bin:$PATH
-ENTRYPOINT run_bot
+WORKDIR /
+ENTRYPOINT aerich upgrade && run_bot

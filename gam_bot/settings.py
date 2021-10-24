@@ -23,5 +23,5 @@ EASY_MESSAGES: Sequence[Tuple[Optional[Sequence[str]], str, Sequence[str]]] = (
 
 TRIGGER = "!"
 
-PORT = environ.get("PORT", 8081)
+PORT = int(environ.get("PORT", 8081))
 HOST = "0.0.0.0"  # nosec

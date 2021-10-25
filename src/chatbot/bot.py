@@ -29,18 +29,17 @@ class Bot(discord.Client):
                     await message.channel.send(response)
             else:
                 await message.channel.send(f"Unexpected command {stripped_content}")
-    
+
     @staticmethod
     @sync_to_async
     def get_gam_user(id: int) -> GamUser:
         user, _ = GamUser.objects.get_or_create(discord_id=id)
         return user
-    
+
     @staticmethod
     @sync_to_async
     def save_gam_user(user: GamUser) -> None:
         user.save()
-
 
     async def on_raw_reaction_add(self, payload: RawReactionActionEvent) -> None:
         channel = await self.fetch_channel(payload.channel_id)
@@ -55,8 +54,7 @@ class Bot(discord.Client):
                 user.social_score -= 1
             logger.debug(f"User's new social score is {user.social_score}")
             await Bot.save_gam_user(user)
-    
-    
+
     async def on_raw_reaction_remove(self, payload: RawReactionActionEvent) -> None:
         channel = await self.fetch_channel(payload.channel_id)
         if isinstance(channel, (TextChannel, GroupChannel)):

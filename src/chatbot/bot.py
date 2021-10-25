@@ -21,15 +21,16 @@ class Bot(discord.Client):
         if message.content.startswith(settings.TRIGGER):
             stripped_content = message.content.strip().removeprefix(settings.TRIGGER)
             logger.info("Got message %s", message)
-            response = REGISTRY.dispatch(
-                stripped_content,
-                message.channel.name
-                if isinstance(message.channel, (TextChannel, GroupChannel))
-                else None,
-            )
-            for response in response:
-                await message.channel.send(response)
-            else:
+            try:
+                response = REGISTRY.dispatch(
+                    stripped_content,
+                    message.channel.name
+                    if isinstance(message.channel, (TextChannel, GroupChannel))
+                    else None,
+                )
+                for response in response:
+                    await message.channel.send(response)
+            except ValueError:
                 await message.channel.send(f"Unexpected command {stripped_content}")
 
     @staticmethod

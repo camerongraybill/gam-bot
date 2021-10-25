@@ -48,26 +48,28 @@ class Bot(discord.Client):
         channel = await self.fetch_channel(payload.channel_id)
         if isinstance(channel, (TextChannel, GroupChannel)):
             message = await channel.fetch_message(payload.message_id)
-            user: GamUser = await Bot.get_gam_user(message.author.id)
-            emoji_str = str(payload.emoji)
-            logger.debug("User's current social score is %d", user.social_score)
-            if emoji_str == settings.ADD_SOCIAL_SCORE:
-                user.social_score += 1
-            elif emoji_str == settings.REMOVE_SOCIAL_SCORE:
-                user.social_score -= 1
-            logger.debug("User's new social score is %d", user.social_score)
-            await Bot.save_gam_user(user)
+            if message.author.id != payload.user_id:
+                user: GamUser = await Bot.get_gam_user(message.author.id)
+                emoji_str = str(payload.emoji)
+                logger.debug("User's current social score is %d", user.social_score)
+                if emoji_str == settings.ADD_SOCIAL_SCORE:
+                    user.social_score += 1
+                elif emoji_str == settings.REMOVE_SOCIAL_SCORE:
+                    user.social_score -= 1
+                logger.debug("User's new social score is %d", user.social_score)
+                await Bot.save_gam_user(user)
 
     async def on_raw_reaction_remove(self, payload: RawReactionActionEvent) -> None:
         channel = await self.fetch_channel(payload.channel_id)
         if isinstance(channel, (TextChannel, GroupChannel)):
             message = await channel.fetch_message(payload.message_id)
-            user: GamUser = await Bot.get_gam_user(message.author.id)
-            emoji_str = str(payload.emoji)
-            logger.debug("User's current social score is %d", user.social_score)
-            if emoji_str == settings.ADD_SOCIAL_SCORE:
-                user.social_score -= 1
-            elif emoji_str == settings.REMOVE_SOCIAL_SCORE:
-                user.social_score += 1
-            logger.debug("User's new social score is %d", user.social_score)
-            await Bot.save_gam_user(user)
+            if message.author.id != payload.user_id:
+                user: GamUser = await Bot.get_gam_user(message.author.id)
+                emoji_str = str(payload.emoji)
+                logger.debug("User's current social score is %d", user.social_score)
+                if emoji_str == settings.ADD_SOCIAL_SCORE:
+                    user.social_score -= 1
+                elif emoji_str == settings.REMOVE_SOCIAL_SCORE:
+                    user.social_score += 1
+                logger.debug("User's new social score is %d", user.social_score)
+                await Bot.save_gam_user(user)

@@ -25,6 +25,11 @@ class Bot(discord.Client):
             ):
                 for response in easy_response:
                     await message.channel.send(response)
+            elif stripped_content == "show_score":
+                user_to_lookup = await Bot.get_gam_user(message.author.id)
+                await message.channel.send(
+                    f"Your social score is currently {user_to_lookup.social_score}"
+                )
             else:
                 await message.channel.send(f"Unexpected command {stripped_content}")
 

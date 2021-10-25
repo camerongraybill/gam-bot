@@ -22,12 +22,12 @@ jobs:
         pip install poetry
         poetry install
     - name: Running Bandit
-      run: poetry run bandit -r ./gam_bot
+      run: poetry run bandit -r ./src
     - name: Running Black
-      run: poetry run black ./gam_bot --check
+      run: poetry run black ./src --check
     - name: Running Mypy
       run: poetry run mypy
     - name: Running Pylint
-      run: poetry run pylint --rcfile ./pyproject.toml ./gam_bot/
+      run: cd src && poetry run pylint --rcfile ../pyproject.toml ./chatbot/ ./gam/ ./manage.py && cd ..
     - name: Running Pytest
       run: poetry run pytest

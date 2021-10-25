@@ -22,7 +22,7 @@ RUN ./tools_venv/bin/pip install wheel==0.37.0 poetry==1.1.11
 # Build and install dependencies to the output virtualenv first so we don't have to re-do it when the dependencies do not change
 COPY ./poetry.lock ./poetry.lock
 COPY ./pyproject.toml ./pyproject.toml
-RUN ./tools_venv/bin/poetry export -f 'requirements.txt' -o ./requirements.txt --without-hashes
+RUN ./tools_venv/bin/poetry export -E prod -f 'requirements.txt' -o ./requirements.txt --without-hashes
 RUN PATH=/home/build/tools_venv/bin:$PATH /venv/bin/pip install -r ./requirements.txt
 RUN ./tools_venv/bin/pip install poetry-dynamic-versioning==0.13.1
 
@@ -41,4 +41,5 @@ COPY --from=build-image --chown=run:users /venv /venv
 USER run:users
 # Configure environment to run
 ENV PATH=/venv/bin:$PATH
-ENTRYPOINT run_bot
+ENV DJANGO_SETTINGS_MODULE=gam.settings.deployment
+ENTRYPOINT manage migrate && manage run_bot

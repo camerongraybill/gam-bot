@@ -22,8 +22,6 @@ EASY_MESSAGES: Sequence[Command] = (
 for command in EASY_MESSAGES:
     REGISTRY.register(command)
 
-COMMAND_MESSAGE: Sequence[Tuple[Optional]]
-
 TRIGGER = "!"
 
 PORT = int(environ.get("PORT", 8081))

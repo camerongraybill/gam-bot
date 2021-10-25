@@ -5,23 +5,22 @@ from typing import Callable, Dict, Optional, Sequence, Set
 from discord import Client
 
 
-CallableFunc = Callable[[Optional[str], Optional[Sequence[str]]], Optional[Sequence[str]]]
+CallableFunc = Callable[[Optional[str], Optional[Sequence[str]]], Sequence[str]]
 COMMAND_REGEX = re.compile(r"^(?P<keyword>\w+)((?P<args>\s\w+))*\s*$")
 
 class Command:
-    def __init__(self, keyword: str, channels: Optional[Set[str]], response: Optional[Sequence[str]], func: CallableFunc=None, client: Optional[Client]=None):
+    def __init__(self, keyword: str, channels: Optional[Set[str]], response: Sequence[str]=(lambda: list())(), func: CallableFunc=None, client: Optional[Client]=None):
         self.keyword: str = keyword
         self.channels: Optional[Set[str]] = channels
-        self.response: Optional[Sequence[str]] = response
+        self.response: Sequence[str] = response
         self.func: CallableFunc = lambda _channel, _args: self.response
         self.client: Optional[Client] = client
         if func is not None:
             self.func = func
-
     def match(self, channel: Optional[str]) -> bool:
         return self.channels is None or channel in self.channels
 
-    def call(self, channel: Optional[str], args: Sequence[str]) -> Optional[Sequence[str]]:
+    def call(self, channel: Optional[str], args: Sequence[str]) -> Sequence[str]:
         return self.func(channel, args)
 
 
@@ -31,7 +30,7 @@ class DiscordCommandRegistry:
         self._client: Optional[Client] = client
         self._mappings: Dict[str, Command] = {}
 
-    def from_args(self, keyword: str, channels: Optional[Set[str]], response: Optional[Sequence[str]], func: CallableFunc=None) -> Command:
+    def from_args(self, keyword: str, channels: Optional[Set[str]], response: Sequence[str], func: CallableFunc=None) -> Command:
         return Command(keyword, channels, response, func, self._client)
 
     def register(self, command: Command) -> None:
@@ -39,7 +38,7 @@ class DiscordCommandRegistry:
             raise KeyError("`{}` is already a registered command keyword".format(command.keyword))
         self._mappings[command.keyword] = command
 
-    def dispatch(self, message: str, channel: Optional[str]) -> Optional[Sequence[str]]:
+    def dispatch(self, message: str, channel: Optional[str]) -> Sequence[str]:
         full_match = COMMAND_REGEX.fullmatch(message)
         if full_match is None:
             raise Exception("could not parse message")
@@ -48,7 +47,7 @@ class DiscordCommandRegistry:
             raise KeyError("`{}` is not a registered command keyword".format(keyword))
         command =self._mappings[keyword]
         if not command.match(channel):
-            return None
+            return []
 
         args = message.removeprefix(full_match.group("keyword")).split()
         return command.call(channel, args)

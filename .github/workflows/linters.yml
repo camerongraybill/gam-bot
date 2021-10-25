@@ -30,4 +30,8 @@ jobs:
     - name: Running Pylint
       run: cd src && poetry run pylint --rcfile ../pyproject.toml ./chatbot/ ./gam/ ./manage.py && cd ..
     - name: Running Pytest
-      run: poetry run pytest
+      run: poetry run pytest --cov=src
+    - name: Coveralls
+      uses: coverallsapp/github-action@master
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}

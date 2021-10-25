@@ -6,4 +6,4 @@ from .models import GamUser
 
 class TestUsers(TestCase):
     def test_users_have_no_coins(self) -> None:
-        self.assertEqual(GamUser.objects.create().gam_coins, 0)
+        self.assertEqual(GamUser.objects.create(discord_id=123).gam_coins, 0)

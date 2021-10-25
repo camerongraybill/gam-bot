@@ -1,4 +1,5 @@
 from logging import getLogger
+from urllib.parse import urlencode
 
 import discord
 from discord import Message, GroupChannel, TextChannel, RawReactionActionEvent
@@ -30,6 +31,24 @@ class Bot(discord.Client):
                 await message.channel.send(
                     f"Your social score is currently {user_to_lookup.social_score}"
                 )
+            elif stripped_content == "lmgtfy":
+                channel = message.channel
+                if (
+                    message.reference is not None
+                    and message.reference.message_id is not None
+                ):
+                    # use message being replied to
+                    original = await channel.fetch_message(
+                        id=message.reference.message_id
+                    )
+                else:
+                    # use message immediately before this one
+                    original = await channel.history(
+                        limit=1, before=message, oldest_first=True
+                    ).next()
+
+                query = urlencode({"q": original.content})
+                await original.reply(f"https://lmgtfy.app/?{query}")
             else:
                 await message.channel.send(f"Unexpected command {stripped_content}")
 

@@ -44,7 +44,7 @@ class Bot(discord.Client):
                 else:
                     # use message immediately before this one
                     original = await channel.history(
-                        limit=1, before=message, oldest_first=True
+                        limit=1, before=message, oldest_first=False
                     ).next()
 
                 query = urlencode({"q": original.content})

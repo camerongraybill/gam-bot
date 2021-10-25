@@ -26,16 +26,16 @@ class CommandTest(TestCase):
         registry = DiscordCommandRegistry()
         command: Command = REGISTRY.from_args("test", None, ("Response",))
         registry.register(command)
-        self.assertSequenceEqual(registry.dispatch("test", "channel"), ("Response",))
+        self.assertSequenceEqual(registry("user", "test", "channel"), ("Response",))
 
     def test_registry_dispatch_args(self):
         registry = DiscordCommandRegistry()
         command: Command = REGISTRY.from_args(
-            "test", None, ("Response",), lambda a, b: b
+            "test", None, ("Response",), lambda a, b, c: c
         )
         registry.register(command)
         self.assertSequenceEqual(
-            registry.dispatch("test arg1 arg2", "channel"), ("arg1", "arg2")
+            registry("user", "test arg1 arg2", "channel"), ("arg1", "arg2")
         )
 
     def test_registry_dispatch_fail(self):
@@ -43,4 +43,4 @@ class CommandTest(TestCase):
         command: Command = REGISTRY.from_args("test", None, ("Response",))
         registry.register(command)
         with pytest.raises(KeyError):
-            registry.dispatch("test1 arg1 arg2", "channel")
+            registry("user", "test1 arg1 arg2", "channel")

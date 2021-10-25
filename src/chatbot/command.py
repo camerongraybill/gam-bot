@@ -1,51 +1,47 @@
 from __future__ import annotations
 import re
-from typing import Callable, Dict, Optional, Sequence, Set
+from typing import Callable, Optional, Sequence, Set
+from dataclasses import dataclass, field
 
 from discord import Client
 
 
-CallableFunc = Callable[[Optional[str], Optional[Sequence[str]]], Sequence[str]]
+CallableFunc = Callable[[str, Optional[str], Optional[Sequence[str]]], Sequence[str]]
 COMMAND_REGEX = re.compile(r"^(?P<keyword>\w+)((?P<args>\s\w+))*\s*$")
 
 
+@dataclass
 class Command:
-    def __init__(
-        self,
-        keyword: str,
-        channels: Optional[Set[str]],
-        response: Optional[Sequence[str]] = None,
-        func: CallableFunc = None,
-        client: Optional[Client] = None,
-    ):
-        self.keyword: str = keyword
-        self.channels: Optional[Set[str]] = channels
-        self.response: Sequence[str] = response if response is not None else []
-        self.func: CallableFunc = lambda _channel, _args: self.response
-        self.client: Optional[Client] = client
-        if func is not None:
-            self.func = func
+    keyword: str
+    channels: Optional[Set[str]] = None
+    response: Sequence[str] = field(default_factory=list)
+    func: Optional[CallableFunc] = None
+    client: Optional[Client] = None
 
     def match(self, channel: Optional[str]) -> bool:
         return self.channels is None or channel in self.channels
 
-    def call(self, channel: Optional[str], args: Sequence[str]) -> Sequence[str]:
-        return self.func(channel, args)
+    def __call__(self, user: str, channel: Optional[str], args: Sequence[str]) -> Sequence[str]:
+        if self.func:
+            return self.func(user, channel, args)
+        return self.response
 
 
+@dataclass
 class DiscordCommandRegistry:
-    def __init__(self, client: Optional[Client] = None):
-        self._client: Optional[Client] = client
-        self._mappings: Dict[str, Command] = {}
+    _client: Optional[Client] = None
+    _mappings: dict[str, Command] = field(default_factory=dict)
 
     def from_args(
         self,
         keyword: str,
         channels: Optional[Set[str]],
         response: Sequence[str],
-        func: CallableFunc = None,
+        func: Optional[CallableFunc] = None,
     ) -> Command:
-        return Command(keyword, channels, response, func, self._client)
+        if func is not None:
+            return Command(keyword=keyword, channels=channels, response=response, func=func, client=self._client)
+        return Command(keyword=keyword, channels=channels, response=response, client=self._client)
 
     def register(self, command: Command) -> None:
         if command.keyword in self._mappings:
@@ -54,7 +50,7 @@ class DiscordCommandRegistry:
             )
         self._mappings[command.keyword] = command
 
-    def dispatch(self, message: str, channel: Optional[str]) -> Sequence[str]:
+    def __call__(self, user: str, message: str, channel: Optional[str]) -> Sequence[str]:
         full_match = COMMAND_REGEX.fullmatch(message)
         if full_match is None:
             raise Exception("could not parse message")
@@ -66,7 +62,7 @@ class DiscordCommandRegistry:
             return []
 
         args = message.removeprefix(full_match.group("keyword")).split()
-        return command.call(channel, args)
+        return command(user, channel, args)
 
 
 REGISTRY = DiscordCommandRegistry()

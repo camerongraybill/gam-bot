@@ -23,3 +23,6 @@ EASY_MESSAGES: Sequence[Tuple[Optional[Sequence[str]], str, Sequence[str]]] = (
 )
 
 TRIGGER = "!"
+
+ADD_SOCIAL_SCORE = "⬆️"
+REMOVE_SOCIAL_SCORE = "⬇️"

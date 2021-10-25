@@ -33,17 +33,40 @@ class Bot(discord.Client):
     @staticmethod
     @sync_to_async
     def get_gam_user(id: int) -> GamUser:
-        GamUser.objects.get_or_create(discord_id=id)
+        user, _ = GamUser.objects.get_or_create(discord_id=id)
+        return user
     
     @staticmethod
     @sync_to_async
     def save_gam_user(user: GamUser) -> None:
         user.save()
-    
+
+
     async def on_raw_reaction_add(self, payload: RawReactionActionEvent) -> None:
         channel = await self.fetch_channel(payload.channel_id)
         if isinstance(channel, (TextChannel, GroupChannel)):
             message = await channel.fetch_message(payload.message_id)
             user: GamUser = await Bot.get_gam_user(message.author.id)
-            logger.info(str(payload.emoji) == settings.ADD_SOCIAL_SCORE)
-
+            emoji_str = str(payload.emoji)
+            logger.debug(f"User's current social score is {user.social_score}")
+            if emoji_str == settings.ADD_SOCIAL_SCORE:
+                user.social_score += 1
+            elif emoji_str == settings.REMOVE_SOCIAL_SCORE:
+                user.social_score -= 1
+            logger.debug(f"User's new social score is {user.social_score}")
+            await Bot.save_gam_user(user)
+    
+    
+    async def on_raw_reaction_remove(self, payload: RawReactionActionEvent) -> None:
+        channel = await self.fetch_channel(payload.channel_id)
+        if isinstance(channel, (TextChannel, GroupChannel)):
+            message = await channel.fetch_message(payload.message_id)
+            user: GamUser = await Bot.get_gam_user(message.author.id)
+            emoji_str = str(payload.emoji)
+            logger.debug(f"User's current social score is {user.social_score}")
+            if emoji_str == settings.ADD_SOCIAL_SCORE:
+                user.social_score -= 1
+            elif emoji_str == settings.REMOVE_SOCIAL_SCORE:
+                user.social_score += 1
+            logger.debug(f"User's new social score is {user.social_score}")
+            await Bot.save_gam_user(user)

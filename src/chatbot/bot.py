@@ -36,8 +36,15 @@ async def lmgtfy(
     await original.reply(f"https://lmgtfy.app/?{query}")
     return []
 
+async def show_score(
+    message: Message, channel: Optional[str], resp: Optional[Sequence[str]]
+) -> Sequence[str]:
+    user_to_lookup = await Bot.get_gam_user(message.author.id)
+    return [f"Your social score is currently {user_to_lookup.social_score}"]
+
 
 REGISTRY.register(REGISTRY.from_args("lmgtfy", {"heros-guild"}, [], func=lmgtfy))
+REGISTRY.register(REGISTRY.from_args("show_score", {"heros-guild"}, [], func=show_score))
 
 
 class Bot(discord.Client):

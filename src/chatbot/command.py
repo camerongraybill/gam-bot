@@ -1,13 +1,25 @@
 from __future__ import annotations
 import re
-from typing import Callable, Optional, Sequence, Set
+from typing import Awaitable, Optional, Sequence, Set, Callable
 from dataclasses import dataclass, field
 
-from discord import Client
+from discord import Client, Message
 
 
-CallableFunc = Callable[[str, Optional[str], Optional[Sequence[str]]], Sequence[str]]
+CallableFunc = Callable[
+    [Message, Optional[str], Sequence[str]], Awaitable[Sequence[str]]
+]
 COMMAND_REGEX = re.compile(r"^(?P<keyword>\w+)((?P<args>\s\w+))*\s*$")
+
+
+def _function_factory(resp: Sequence[str]) -> CallableFunc:
+    # pylint: disable=unused-argument
+    async def _anonymous_async_lambda(
+        m: Message, channel: Optional[str], args: Sequence[str]
+    ) -> Sequence[str]:
+        return resp
+
+    return _anonymous_async_lambda
 
 
 @dataclass
@@ -21,10 +33,15 @@ class Command:
     def match(self, channel: Optional[str]) -> bool:
         return self.channels is None or channel in self.channels
 
-    def __call__(self, user: str, channel: Optional[str], args: Sequence[str]) -> Sequence[str]:
-        if self.func:
-            return self.func(user, channel, args)
-        return self.response
+    async def __call__(
+        self, message: Message, channel: Optional[str], args: Sequence[str]
+    ) -> Sequence[str]:
+        ret: Sequence[str] = []
+        if self.func is None:
+            ret = await _function_factory(self.response)(message, channel, args)
+        else:
+            ret = await self.func(message, channel, args)
+        return ret
 
 
 @dataclass
@@ -39,9 +56,15 @@ class DiscordCommandRegistry:
         response: Sequence[str],
         func: Optional[CallableFunc] = None,
     ) -> Command:
-        if func is not None:
-            return Command(keyword=keyword, channels=channels, response=response, func=func, client=self._client)
-        return Command(keyword=keyword, channels=channels, response=response, client=self._client)
+        if func is None:
+            func = _function_factory(response)
+        return Command(
+            keyword=keyword,
+            channels=channels,
+            response=response,
+            func=func,
+            client=self._client,
+        )
 
     def register(self, command: Command) -> None:
         if command.keyword in self._mappings:
@@ -50,8 +73,10 @@ class DiscordCommandRegistry:
             )
         self._mappings[command.keyword] = command
 
-    def __call__(self, user: str, message: str, channel: Optional[str]) -> Sequence[str]:
-        full_match = COMMAND_REGEX.fullmatch(message)
+    async def __call__(
+        self, message: Message, command_string: str, channel: Optional[str]
+    ) -> Sequence[str]:
+        full_match = COMMAND_REGEX.fullmatch(command_string)
         if full_match is None:
             raise Exception("could not parse message")
         keyword = full_match.group("keyword").strip()
@@ -61,8 +86,5 @@ class DiscordCommandRegistry:
         if not command.match(channel):
             return []
 
-        args = message.removeprefix(full_match.group("keyword")).split()
-        return command(user, channel, args)
-
-
-REGISTRY = DiscordCommandRegistry()
+        args = command_string.removeprefix(keyword).split()
+        return await command(message, channel, args)

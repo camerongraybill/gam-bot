@@ -1,26 +1,27 @@
 from os import getenv
-from typing import Sequence, Tuple, Optional
+from typing import Sequence, Optional, Tuple, Set
 
 from pkg_resources import get_distribution
 
 DISCORD_KEY = getenv("DISCORD_KEY", None)
 
-EASY_MESSAGES: Sequence[Tuple[Optional[Sequence[str]], str, Sequence[str]]] = (
+EASY_MESSAGES: Sequence[Tuple[str, Optional[Set[str]], Sequence[str]]] = (
     (
-        ("heroes-guild",),
         "assemble",
+        {"heroes-guild"},
         (
             "<@&471829212626681866> Assemble!",
             "https://www.camerongraybill.dev/assemble.jpg",
         ),
     ),
     (
-        ("heroes-guild",),
         "thank",
+        {"heroes-guild"},
         ("https://camerongraybill.dev/thank-you-for-your-service.jpg",),
     ),
-    (None, "version", (f"Gam bot version v{get_distribution('gam_bot').version}",)),
+    ("version", None, (f"Gam bot version {get_distribution('gam_bot').version}",)),
 )
+
 
 TRIGGER = "!"
 

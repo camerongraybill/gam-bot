@@ -1,15 +1,53 @@
 from logging import getLogger
+from typing import Optional, Sequence
 from urllib.parse import urlencode
 
-import discord
-from discord import Message, GroupChannel, TextChannel, RawReactionActionEvent
 from asgiref.sync import sync_to_async
-
-from .easy_messages import easy_message_processor
+import discord
+from discord import GroupChannel, Message, RawReactionActionEvent, TextChannel
 from django.conf import settings
+
+from .command import DiscordCommandRegistry
 from .models import GamUser
 
 logger = getLogger(__name__)
+
+REGISTRY = DiscordCommandRegistry()
+
+for keyword, channels, r in settings.EASY_MESSAGES:
+    command = REGISTRY.from_args(keyword, channels, r)
+    REGISTRY.register(command)
+
+# pylint: disable=unused-argument
+async def lmgtfy(
+    message: Message, channel: Optional[str], resp: Optional[Sequence[str]]
+) -> Sequence[str]:
+    chan = message.channel
+    if message.reference is not None and message.reference.message_id is not None:
+        # use message being replied to
+        original = await chan.fetch_message(id=message.reference.message_id)
+    else:
+        # use message immediately before this one
+        original = await chan.history(
+            limit=1, before=message, oldest_first=False
+        ).next()
+
+    query = urlencode({"q": original.content})
+    await original.reply(f"https://lmgtfy.app/?{query}")
+    return []
+
+
+async def show_score(
+    message: Message, channel: Optional[str], resp: Optional[Sequence[str]]
+) -> Sequence[str]:
+    user_to_lookup = await Bot.get_gam_user(message.author.id)
+    return [f"Your social score is currently {user_to_lookup.social_score}"]
+
+
+REGISTRY.register(REGISTRY.from_args("lmgtfy", {"heros-guild"}, [], func=lmgtfy))
+REGISTRY.register(
+    REGISTRY.from_args("show_score", {"heros-guild"}, [], func=show_score)
+)
 
 
 class Bot(discord.Client):
@@ -18,38 +56,17 @@ class Bot(discord.Client):
         if message.content.startswith(settings.TRIGGER):
             stripped_content = message.content.strip().removeprefix(settings.TRIGGER)
             logger.info("Got message %s", message)
-            if easy_response := easy_message_processor(
-                stripped_content,
-                message.channel.name
-                if isinstance(message.channel, (TextChannel, GroupChannel))
-                else None,
-            ):
-                for response in easy_response:
-                    await message.channel.send(response)
-            elif stripped_content == "show_score":
-                user_to_lookup = await Bot.get_gam_user(message.author.id)
-                await message.channel.send(
-                    f"Your social score is currently {user_to_lookup.social_score}"
+            try:
+                response = await REGISTRY(
+                    message,
+                    stripped_content,
+                    message.channel.name
+                    if isinstance(message.channel, (TextChannel, GroupChannel))
+                    else None,
                 )
-            elif stripped_content == "lmgtfy":
-                channel = message.channel
-                if (
-                    message.reference is not None
-                    and message.reference.message_id is not None
-                ):
-                    # use message being replied to
-                    original = await channel.fetch_message(
-                        id=message.reference.message_id
-                    )
-                else:
-                    # use message immediately before this one
-                    original = await channel.history(
-                        limit=1, before=message, oldest_first=False
-                    ).next()
-
-                query = urlencode({"q": original.content})
-                await original.reply(f"https://lmgtfy.app/?{query}")
-            else:
+                for line in response:
+                    await message.channel.send(line)
+            except ValueError:
                 await message.channel.send(f"Unexpected command {stripped_content}")
 
     @staticmethod

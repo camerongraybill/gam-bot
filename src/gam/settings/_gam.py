@@ -16,7 +16,7 @@ EASY_MESSAGES: Sequence[Tuple[str, Optional[Set[str]], Sequence[str]]] = (
     ),
     (
         "thank",
-        {"heroes-guild"},
+        None,
         ("https://camerongraybill.dev/thank-you-for-your-service.jpg",),
     ),
     ("version", None, (f"Gam bot version {get_distribution('gam_bot').version}",)),

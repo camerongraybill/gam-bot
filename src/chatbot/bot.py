@@ -44,9 +44,9 @@ async def show_score(
     return [f"Your social score is currently {user_to_lookup.social_score}"]
 
 
-REGISTRY.register(REGISTRY.from_args("lmgtfy", {"heros-guild"}, [], func=lmgtfy))
+REGISTRY.register(REGISTRY.from_args("lmgtfy", None, [], func=lmgtfy))
 REGISTRY.register(
-    REGISTRY.from_args("show_score", {"heros-guild"}, [], func=show_score)
+    REGISTRY.from_args("show_score", None, [], func=show_score)
 )
 
 

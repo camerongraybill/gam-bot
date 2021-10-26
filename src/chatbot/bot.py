@@ -36,6 +36,7 @@ async def lmgtfy(
     await original.reply(f"https://lmgtfy.app/?{query}")
     return []
 
+
 async def show_score(
     message: Message, channel: Optional[str], resp: Optional[Sequence[str]]
 ) -> Sequence[str]:
@@ -44,7 +45,9 @@ async def show_score(
 
 
 REGISTRY.register(REGISTRY.from_args("lmgtfy", {"heros-guild"}, [], func=lmgtfy))
-REGISTRY.register(REGISTRY.from_args("show_score", {"heros-guild"}, [], func=show_score))
+REGISTRY.register(
+    REGISTRY.from_args("show_score", {"heros-guild"}, [], func=show_score)
+)
 
 
 class Bot(discord.Client):

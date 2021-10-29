@@ -2,7 +2,6 @@ from logging import getLogger
 from typing import Optional, Sequence
 from urllib.parse import urlencode
 
-from asgiref.sync import sync_to_async
 from discord import GroupChannel, RawReactionActionEvent, TextChannel
 from discord.channel import DMChannel
 from discord.ext import commands
@@ -50,17 +49,6 @@ for keyword, channels, responses in settings.EASY_MESSAGES:
     make_easy_command(keyword, channels, responses)
 
 
-@sync_to_async
-def get_gam_user(user_id: int) -> GamUser:
-    user, _ = GamUser.objects.get_or_create(discord_id=user_id)
-    return user
-
-
-@sync_to_async
-def save_gam_user(user: GamUser) -> None:
-    user.save()
-
-
 @bot.command()
 async def lmgtfy(ctx: Context) -> None:
     message = ctx.message
@@ -81,7 +69,9 @@ async def lmgtfy(ctx: Context) -> None:
 @bot.command()
 async def show_score(ctx: Context) -> None:
     logger.info("wow")
-    user_to_lookup = await get_gam_user(ctx.message.author.id)
+    user_to_lookup, _ = await GamUser.objects.async_get_or_create(
+        discord_id=ctx.message.author.id
+    )
     await ctx.send(f"Your social score is currently {user_to_lookup.social_score}")
 
 
@@ -91,7 +81,9 @@ async def on_raw_reaction_add(payload: RawReactionActionEvent) -> None:
     if isinstance(channel, (TextChannel, GroupChannel)):
         message = await channel.fetch_message(payload.message_id)
         if message.author.id != payload.user_id:
-            user: GamUser = await get_gam_user(message.author.id)
+            user, _ = await GamUser.objects.async_get_or_create(
+                discord_id=message.author.id
+            )
             emoji_str = str(payload.emoji)
             logger.debug("User's current social score is %d", user.social_score)
             if emoji_str == settings.ADD_SOCIAL_SCORE:
@@ -99,7 +91,7 @@ async def on_raw_reaction_add(payload: RawReactionActionEvent) -> None:
             elif emoji_str == settings.REMOVE_SOCIAL_SCORE:
                 user.social_score -= 1
             logger.debug("User's new social score is %d", user.social_score)
-            await save_gam_user(user)
+            await user.async_save()
 
 
 @bot.event
@@ -108,7 +100,9 @@ async def on_raw_reaction_remove(payload: RawReactionActionEvent) -> None:
     if isinstance(channel, (TextChannel, GroupChannel)):
         message = await channel.fetch_message(payload.message_id)
         if message.author.id != payload.user_id:
-            user: GamUser = await get_gam_user(message.author.id)
+            user, _ = await GamUser.objects.async_get_or_create(
+                discord_id=message.author.id
+            )
             emoji_str = str(payload.emoji)
             logger.debug("User's current social score is %d", user.social_score)
             if emoji_str == settings.ADD_SOCIAL_SCORE:
@@ -116,4 +110,4 @@ async def on_raw_reaction_remove(payload: RawReactionActionEvent) -> None:
             elif emoji_str == settings.REMOVE_SOCIAL_SCORE:
                 user.social_score += 1
             logger.debug("User's new social score is %d", user.social_score)
-            await save_gam_user(user)
+            await user.async_save()

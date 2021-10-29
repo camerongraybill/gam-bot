@@ -8,7 +8,7 @@ DISCORD_KEY = getenv("DISCORD_KEY", None)
 EASY_MESSAGES: Sequence[Tuple[str, Optional[Set[str]], Sequence[str]]] = (
     (
         "assemble",
-        {"heroes-guild"},
+        {"heroes-guild", "general"},
         (
             "<@&471829212626681866> Assemble!",
             "https://www.camerongraybill.dev/assemble.jpg",

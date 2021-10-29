@@ -1,5 +1,5 @@
 from logging import getLogger
-from typing import Optional, Sequence, Set
+from typing import Optional, Sequence
 from urllib.parse import urlencode
 
 from asgiref.sync import sync_to_async
@@ -15,7 +15,7 @@ from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from discord.ext.commands import Command
-    from typing import Union, Any
+    from discord.ext.commands.core import _CheckDecorator
 
 logger = getLogger(__name__)
 
@@ -23,23 +23,24 @@ bot = Bot(command_prefix="!")
 
 
 def is_in_channel(
-    command_channels: Optional[Set[str]],
-) -> "Union[Command[Context], Any]":
+    command_channels: Optional[set[str]],
+) -> "_CheckDecorator":
+    @commands.check
     async def predicate(ctx: Context) -> bool:
         if command_channels and ctx.channel and not isinstance(ctx.channel, DMChannel):
             return ctx.channel.name in command_channels
         return True
 
-    return commands.check(predicate)
+    return predicate
 
 
 def make_easy_command(
     command_keyword: str,
-    command_channels: Optional[Set[str]],
+    command_channels: Optional[set[str]],
     command_responses: Sequence[str],
 ) -> None:
-    @bot.command(name=command_keyword)  # type: ignore
-    @is_in_channel(command_channels)  # type: ignore
+    @bot.command(name=command_keyword)
+    @is_in_channel(command_channels)
     async def _easy_message_function(ctx: Context) -> None:
         for resp in command_responses:
             await ctx.send(resp)

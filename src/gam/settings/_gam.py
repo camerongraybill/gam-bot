@@ -1,11 +1,11 @@
 from os import getenv
-from typing import Sequence, Optional, Tuple, Set
+from typing import Sequence, Optional
 
 from pkg_resources import get_distribution
 
 DISCORD_KEY = getenv("DISCORD_KEY", None)
 
-EASY_MESSAGES: Sequence[Tuple[str, Optional[Set[str]], Sequence[str]]] = (
+EASY_MESSAGES: Sequence[tuple[str, Optional[set[str]], Sequence[str]]] = (
     (
         "assemble",
         {"heroes-guild", "general"},

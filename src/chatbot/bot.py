@@ -1,27 +1,68 @@
 from logging import getLogger
-from typing import Optional, Sequence
+from typing import Optional, Sequence, Set
 from urllib.parse import urlencode
 
 from asgiref.sync import sync_to_async
-import discord
-from discord import GroupChannel, Message, RawReactionActionEvent, TextChannel
+from discord import GroupChannel, RawReactionActionEvent, TextChannel
+from discord.channel import DMChannel
+from discord.ext import commands
+from discord.ext.commands import Bot, Context
 from django.conf import settings
 
-from .command import DiscordCommandRegistry
 from .models import GamUser
+
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from discord.ext.commands import Command
+    from typing import Union, Any
 
 logger = getLogger(__name__)
 
-REGISTRY = DiscordCommandRegistry()
+bot = Bot(command_prefix="!")
 
-for keyword, channels, r in settings.EASY_MESSAGES:
-    command = REGISTRY.from_args(keyword, channels, r)
-    REGISTRY.register(command)
 
-# pylint: disable=unused-argument
-async def lmgtfy(
-    message: Message, channel: Optional[str], resp: Optional[Sequence[str]]
-) -> Sequence[str]:
+def is_in_channel(
+    command_channels: Optional[Set[str]],
+) -> "Union[Command[Context], Any]":
+    async def predicate(ctx: Context) -> bool:
+        if command_channels and ctx.channel and not isinstance(ctx.channel, DMChannel):
+            return ctx.channel.name in command_channels
+        return True
+
+    return commands.check(predicate)
+
+
+def make_easy_command(
+    command_keyword: str,
+    command_channels: Optional[Set[str]],
+    command_responses: Sequence[str],
+) -> None:
+    @bot.command(name=command_keyword)  # type: ignore
+    @is_in_channel(command_channels)  # type: ignore
+    async def _easy_message_function(ctx: Context) -> None:
+        for resp in command_responses:
+            await ctx.send(resp)
+
+
+for keyword, channels, responses in settings.EASY_MESSAGES:
+    make_easy_command(keyword, channels, responses)
+
+
+@sync_to_async
+def get_gam_user(user_id: int) -> GamUser:
+    user, _ = GamUser.objects.get_or_create(discord_id=user_id)
+    return user
+
+
+@sync_to_async
+def save_gam_user(user: GamUser) -> None:
+    user.save()
+
+
+@bot.command()
+async def lmgtfy(ctx: Context) -> None:
+    message = ctx.message
     chan = message.channel
     if message.reference is not None and message.reference.message_id is not None:
         # use message being replied to
@@ -34,78 +75,44 @@ async def lmgtfy(
 
     query = urlencode({"q": original.content})
     await original.reply(f"https://lmgtfy.app/?{query}")
-    return []
 
 
-async def show_score(
-    message: Message, channel: Optional[str], resp: Optional[Sequence[str]]
-) -> Sequence[str]:
-    user_to_lookup = await Bot.get_gam_user(message.author.id)
-    return [f"Your social score is currently {user_to_lookup.social_score}"]
+@bot.command()
+async def show_score(ctx: Context) -> None:
+    logger.info("wow")
+    user_to_lookup = await get_gam_user(ctx.message.author.id)
+    await ctx.send(f"Your social score is currently {user_to_lookup.social_score}")
 
 
-REGISTRY.register(REGISTRY.from_args("lmgtfy", None, [], func=lmgtfy))
-REGISTRY.register(
-    REGISTRY.from_args("show_score", None, [], func=show_score)
-)
+@bot.event
+async def on_raw_reaction_add(payload: RawReactionActionEvent) -> None:
+    channel = await bot.fetch_channel(payload.channel_id)
+    if isinstance(channel, (TextChannel, GroupChannel)):
+        message = await channel.fetch_message(payload.message_id)
+        if message.author.id != payload.user_id:
+            user: GamUser = await get_gam_user(message.author.id)
+            emoji_str = str(payload.emoji)
+            logger.debug("User's current social score is %d", user.social_score)
+            if emoji_str == settings.ADD_SOCIAL_SCORE:
+                user.social_score += 1
+            elif emoji_str == settings.REMOVE_SOCIAL_SCORE:
+                user.social_score -= 1
+            logger.debug("User's new social score is %d", user.social_score)
+            await save_gam_user(user)
 
 
-class Bot(discord.Client):
-    @staticmethod
-    async def on_message(message: Message) -> None:
-        if message.content.startswith(settings.TRIGGER):
-            stripped_content = message.content.strip().removeprefix(settings.TRIGGER)
-            logger.info("Got message %s", message)
-            try:
-                response = await REGISTRY(
-                    message,
-                    stripped_content,
-                    message.channel.name
-                    if isinstance(message.channel, (TextChannel, GroupChannel))
-                    else None,
-                )
-                for line in response:
-                    await message.channel.send(line)
-            except ValueError:
-                await message.channel.send(f"Unexpected command {stripped_content}")
-
-    @staticmethod
-    @sync_to_async
-    def get_gam_user(user_id: int) -> GamUser:
-        user, _ = GamUser.objects.get_or_create(discord_id=user_id)
-        return user
-
-    @staticmethod
-    @sync_to_async
-    def save_gam_user(user: GamUser) -> None:
-        user.save()
-
-    async def on_raw_reaction_add(self, payload: RawReactionActionEvent) -> None:
-        channel = await self.fetch_channel(payload.channel_id)
-        if isinstance(channel, (TextChannel, GroupChannel)):
-            message = await channel.fetch_message(payload.message_id)
-            if message.author.id != payload.user_id:
-                user: GamUser = await Bot.get_gam_user(message.author.id)
-                emoji_str = str(payload.emoji)
-                logger.debug("User's current social score is %d", user.social_score)
-                if emoji_str == settings.ADD_SOCIAL_SCORE:
-                    user.social_score += 1
-                elif emoji_str == settings.REMOVE_SOCIAL_SCORE:
-                    user.social_score -= 1
-                logger.debug("User's new social score is %d", user.social_score)
-                await Bot.save_gam_user(user)
-
-    async def on_raw_reaction_remove(self, payload: RawReactionActionEvent) -> None:
-        channel = await self.fetch_channel(payload.channel_id)
-        if isinstance(channel, (TextChannel, GroupChannel)):
-            message = await channel.fetch_message(payload.message_id)
-            if message.author.id != payload.user_id:
-                user: GamUser = await Bot.get_gam_user(message.author.id)
-                emoji_str = str(payload.emoji)
-                logger.debug("User's current social score is %d", user.social_score)
-                if emoji_str == settings.ADD_SOCIAL_SCORE:
-                    user.social_score -= 1
-                elif emoji_str == settings.REMOVE_SOCIAL_SCORE:
-                    user.social_score += 1
-                logger.debug("User's new social score is %d", user.social_score)
-                await Bot.save_gam_user(user)
+@bot.event
+async def on_raw_reaction_remove(payload: RawReactionActionEvent) -> None:
+    channel = await bot.fetch_channel(payload.channel_id)
+    if isinstance(channel, (TextChannel, GroupChannel)):
+        message = await channel.fetch_message(payload.message_id)
+        if message.author.id != payload.user_id:
+            user: GamUser = await get_gam_user(message.author.id)
+            emoji_str = str(payload.emoji)
+            logger.debug("User's current social score is %d", user.social_score)
+            if emoji_str == settings.ADD_SOCIAL_SCORE:
+                user.social_score -= 1
+            elif emoji_str == settings.REMOVE_SOCIAL_SCORE:
+                user.social_score += 1
+            logger.debug("User's new social score is %d", user.social_score)
+            await save_gam_user(user)

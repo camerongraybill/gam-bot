@@ -1,4 +1,3 @@
-from discord.mentions import default
 from django.db import models
 
 from chatbot.managers import AsyncEnabledManager

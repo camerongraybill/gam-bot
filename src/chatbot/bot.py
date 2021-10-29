@@ -1,11 +1,15 @@
 from logging import getLogger
-from typing import Mapping, Optional, Sequence
+from typing import Mapping, Optional, Sequence, Union
 from urllib.parse import urlencode
 from itertools import groupby
 
 from discord import GroupChannel, RawReactionActionEvent, TextChannel
 from discord.ext.commands import Bot, Context
+from discord.ext.commands.converter import PartialEmojiConverter
+from discord.ext.commands.errors import PartialEmojiConversionFailure
+from discord.partial_emoji import PartialEmoji
 from django.conf import settings
+from django.db import models
 
 from .models import GamUser, Prediction, PredictionChoice, Wager
 from .checks import is_in_channel, is_local_command
@@ -249,6 +253,11 @@ async def add_coins(ctx: Context, amount: int) -> None:
     )
     user.gam_coins += amount
     await user.async_save()
+
+@bot.command()
+@is_in_channel({"bot-commands"})
+async def register_score(ctx: Context, emoji: Union[PartialEmoji, str], score: int) -> None:
+    logger.info(emoji)
 
 
 @bot.event

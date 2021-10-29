@@ -8,7 +8,6 @@ class GamUser(models.Model, AsyncModelMixin):
     discord_id = models.BigIntegerField(primary_key=True)
     gam_coins = models.PositiveIntegerField(default=0)
     social_score = models.IntegerField(default=0)
-
     objects = AsyncEnabledManager["GamUser"]()
 
 
@@ -39,3 +38,10 @@ class Wager(models.Model, AsyncModelMixin):
     )  # Choice they're wagering on
 
     objects = AsyncEnabledManager["Wager"]()
+
+
+class EmojiScore(models.Model, AsyncModelMixin):
+    emoji_id = models.TextField()
+    score = models.IntegerField()
+
+    objects = AsyncEnabledManager["EmojiScore"]()

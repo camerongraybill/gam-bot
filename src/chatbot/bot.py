@@ -12,6 +12,7 @@ from django.conf import settings
 from .models import GamUser
 
 from typing import TYPE_CHECKING
+
 if TYPE_CHECKING:
     from discord.ext.commands import Command
     from typing import Union, Any
@@ -21,7 +22,9 @@ logger = getLogger(__name__)
 bot = Bot(command_prefix="!")
 
 
-def is_in_channel(command_channels: Optional[Set[str]]) -> "Union[Command[Context], Any]":
+def is_in_channel(
+    command_channels: Optional[Set[str]],
+) -> "Union[Command[Context], Any]":
     async def predicate(ctx: Context) -> bool:
         if command_channels and ctx.channel and not isinstance(ctx.channel, DMChannel):
             return ctx.channel.name in command_channels
@@ -31,7 +34,9 @@ def is_in_channel(command_channels: Optional[Set[str]]) -> "Union[Command[Contex
 
 
 def make_easy_command(
-    command_keyword: str, command_channels: Optional[Set[str]], command_responses: Sequence[str]
+    command_keyword: str,
+    command_channels: Optional[Set[str]],
+    command_responses: Sequence[str],
 ) -> None:
     @bot.command(name=command_keyword)  # type: ignore
     @is_in_channel(command_channels)  # type: ignore

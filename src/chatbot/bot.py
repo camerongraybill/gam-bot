@@ -1,9 +1,5 @@
 from logging import getLogger
-<<<<<<< HEAD
 from typing import Mapping, Optional, Sequence, Union
-=======
-from typing import Any, Optional, Sequence, Union, cast
->>>>>>> Add register_score <emoji> <score> command
 from urllib.parse import urlencode
 from itertools import groupby
 
@@ -11,20 +7,10 @@ from discord import GroupChannel, RawReactionActionEvent, TextChannel
 from discord.ext.commands import Bot, Context
 from discord.partial_emoji import PartialEmoji
 from django.conf import settings
-from django.db import models
 
-<<<<<<< HEAD
-from .models import GamUser, Prediction, PredictionChoice, Wager
+from .models import EmojiScore, GamUser, Prediction, PredictionChoice, Wager
 from .checks import is_in_channel, is_local_command
 
-=======
-from .models import EmojiScore, GamUser
-
-from typing import TYPE_CHECKING
-
-if TYPE_CHECKING:
-    from discord.ext.commands.core import _CheckDecorator
->>>>>>> Add register_score <emoji> <score> command
 
 logger = getLogger(__name__)
 
@@ -73,7 +59,6 @@ async def show_score(ctx: Context) -> None:
 
 
 @bot.command()
-<<<<<<< HEAD
 async def make_prediction(
     ctx: Context, prediction_text: str, options: Optional[str]
 ) -> None:
@@ -268,9 +253,6 @@ async def add_coins(ctx: Context, amount: int) -> None:
 
 @bot.command()
 @is_in_channel({"bot-commands"})
-async def register_score(ctx: Context, emoji: Union[PartialEmoji, str], score: int) -> None:
-    logger.info(emoji)
-=======
 async def register_score(
     ctx: Context, emoji: Union[PartialEmoji, str], score: int
 ) -> None:
@@ -283,7 +265,6 @@ async def register_score(
     emoji_score.score = score
     await emoji_score.async_save()
     await ctx.message.reply("Your emoji score was registered/updated successfully")
->>>>>>> Add register_score <emoji> <score> command
 
 
 @bot.event

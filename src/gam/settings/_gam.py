@@ -24,7 +24,6 @@ EASY_MESSAGES: Sequence[tuple[str, Optional[set[str]], Sequence[str]]] = (
 
 
 TRIGGER = "!"
-<<<<<<< HEAD
 
 ADD_SOCIAL_SCORE = "⬆️"
 REMOVE_SOCIAL_SCORE = "⬇️"
@@ -32,5 +31,3 @@ REMOVE_SOCIAL_SCORE = "⬇️"
 WAGER_ERROR_REACTION = "❗"
 WAGER_NO_MONEY_REACTION = "💸"
 WAGER_SUCCESS_REACTION = "✅"
-=======
->>>>>>> Add register_score <emoji> <score> command

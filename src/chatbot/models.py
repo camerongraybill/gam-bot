@@ -30,7 +30,7 @@ class PredictionChoice(models.Model, AsyncModelMixin):
 
 
 class Wager(models.Model, AsyncModelMixin):
-    bettor = models.ForeignKey(
+    user = models.ForeignKey(
         GamUser, on_delete=models.CASCADE
     )  # Person who made the wager
     amount = models.IntegerField()  # Amount they're wagering

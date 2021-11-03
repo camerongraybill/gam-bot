@@ -27,3 +27,10 @@ class AsyncModelMixin:
             self.delete()
 
         await _()
+    
+    async def async_delete(self) -> None:
+        @sync_to_async
+        def _() -> None:
+            self.delete() # type: ignore
+        
+        await _()

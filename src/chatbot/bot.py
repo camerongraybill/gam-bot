@@ -141,6 +141,7 @@ async def close(ctx: Context) -> None:
             prediction = await Prediction.objects.async_get(thread_id=thread_id)
             prediction.open = False
             await prediction.async_save()
+            await ctx.message.add_reaction(settings.WAGER_SUCCESS_REACTION)
         except Prediction.DoesNotExist:
             # This should only happen if someone replies to the wrong message
             logger.info(
@@ -174,10 +175,10 @@ async def resolve(ctx: Context, correct_choice: str) -> None:
             correct_wagers_pot = sum([wager.amount for wager in correct_wagers])
             # We need to map users to the wagers they placed
             # Sort our data first
-            bettor = attrgetter("bettor")
-            correct_wagers = sorted(correct_wagers, key=bettor)
+            userattr = attrgetter("user")
+            correct_wagers = sorted(correct_wagers, key=userattr)
             users_to_wagers: Mapping[GamUser, list[Wager]] = {
-                k: list(g) for k, g in groupby(correct_wagers, bettor)
+                k: list(g) for k, g in groupby(correct_wagers, userattr)
             }
             for user, wagers in users_to_wagers.items():
                 coins_to_award = int(
@@ -188,6 +189,7 @@ async def resolve(ctx: Context, correct_choice: str) -> None:
                 )
                 user.gam_coins += sum([wager.amount for wager in wagers]) / pot
                 await user.async_save()
+            await ctx.message.add_reaction(settings.WAGER_SUCCESS_REACTION)
         except Prediction.DoesNotExist:
             # This should only happen if someone replies to the wrong message
             logger.info(
@@ -206,6 +208,32 @@ async def resolve(ctx: Context, correct_choice: str) -> None:
             "User tried to resolve prediction without replying to a prediction thread."
         )
 
+
+@bot.command()
+async def cancel_prediction(ctx: Context) -> None:
+    if ctx.message.reference:
+        thread_id = ctx.message.reference.message_id
+        try:
+            prediction = await Prediction.objects.async_get(thread_id=thread_id)
+            async for wager in Wager.objects.select_related().filter(choice__prediction=prediction): # type: ignore
+                # Refund user their wager size
+                wager.user.gam_coins += wager.amount
+                await wager.user.async_save()
+            # Delete the prediction and all associated data
+            await prediction.async_delete()
+            await ctx.message.add_reaction(settings.WAGER_SUCCESS_REACTION)
+        except Prediction.DoesNotExist:
+            # This should only happen if someone replies to the wrong message or the prediction already
+            # was deleted
+            logger.info(
+                "User tried cancelling on thread_id %d which does not correspond to a prediction",
+                thread_id,
+            )
+            await ctx.message.add_reaction(settings.WAGER_ERROR_REACTION)
+    else:
+        logger.info(
+            "User tried to cancel prediction without replying to a prediction thread."
+        )
 
 @bot.command()
 @is_local_command()

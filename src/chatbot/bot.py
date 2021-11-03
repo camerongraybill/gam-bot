@@ -68,7 +68,6 @@ async def lmgtfy(ctx: Context) -> None:
 
 @bot.command()
 async def show_score(ctx: Context) -> None:
-    logger.info("wow")
     user_to_lookup, _ = await GamUser.objects.async_get_or_create(
         discord_id=ctx.message.author.id
     )

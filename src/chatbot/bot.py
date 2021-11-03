@@ -261,9 +261,10 @@ async def register_score(
     else:
         emoji_id = emoji
     logger.info("Registering emoji_id %s with score %d", emoji_id, score)
-    emoji_score: EmojiScore = await EmojiScore.objects.async_get(emoji_id=emoji_id)
-    emoji_score.score = score
-    await emoji_score.async_save()
+    # We don't actually need the resulting object here
+    await EmojiScore.objects.async_update_or_create(
+        emoji_id=emoji_id, defaults={"score": score}
+    )
     await ctx.message.reply("Your emoji score was registered/updated successfully")
 
 
@@ -278,7 +279,9 @@ async def on_raw_reaction_remove(payload: RawReactionActionEvent) -> None:
     await apply_emoji_score(payload, -1)
 
 
-async def apply_emoji_score(payload: RawReactionActionEvent, score_multiplier: int) -> None:
+async def apply_emoji_score(
+    payload: RawReactionActionEvent, score_multiplier: int
+) -> None:
     channel = await bot.fetch_channel(payload.channel_id)
     if isinstance(channel, (TextChannel, GroupChannel)):
         message = await channel.fetch_message(payload.message_id)

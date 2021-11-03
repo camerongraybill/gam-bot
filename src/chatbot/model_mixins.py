@@ -5,7 +5,7 @@ from django.db.models import Model
 from chatbot.managers import AsyncEnabledManager
 from chatbot.querysets import AsyncEnabledQuerySet, better_sync_to_async
 
-_T = TypeVar('_T', bound=Model)
+_T = TypeVar("_T", bound=Model)
 
 
 class AsyncModelMixin:

@@ -269,6 +269,16 @@ async def register_score(
 
 @bot.event
 async def on_raw_reaction_add(payload: RawReactionActionEvent) -> None:
+    await apply_emoji_score(payload, 1)
+
+
+@bot.event
+async def on_raw_reaction_remove(payload: RawReactionActionEvent) -> None:
+    # -1 means remove
+    await apply_emoji_score(payload, -1)
+
+
+async def apply_emoji_score(payload: RawReactionActionEvent, score_multiplier: int) -> None:
     channel = await bot.fetch_channel(payload.channel_id)
     if isinstance(channel, (TextChannel, GroupChannel)):
         message = await channel.fetch_message(payload.message_id)
@@ -276,37 +286,15 @@ async def on_raw_reaction_add(payload: RawReactionActionEvent) -> None:
             user, _ = await GamUser.objects.async_get_or_create(
                 discord_id=message.author.id
             )
-            emoji_id = str(payload.emoji.id) if payload.emoji.id else str(payload.emoji)
+            emoji_id = str(payload.emoji.id or payload.emoji)
             try:
                 logger.info(emoji_id)
                 emoji_score: EmojiScore = await EmojiScore.objects.async_get(
                     emoji_id=emoji_id
                 )
                 logger.debug("User's current social score is %d", user.social_score)
-                user.social_score += emoji_score.score
+                user.social_score += emoji_score.score * score_multiplier
                 logger.debug("User's new social score is %d", user.social_score)
                 await user.async_save()
             except EmojiScore.DoesNotExist:
-                logger.warning("No emoji score registered for emoji ID %s", emoji_id)
-
-
-@bot.event
-async def on_raw_reaction_remove(payload: RawReactionActionEvent) -> None:
-    channel = await bot.fetch_channel(payload.channel_id)
-    if isinstance(channel, (TextChannel, GroupChannel)):
-        message = await channel.fetch_message(payload.message_id)
-        if message.author.id != payload.user_id:
-            user, _ = await GamUser.objects.async_get_or_create(
-                discord_id=message.author.id
-            )
-            emoji_id = payload.emoji.id if payload.emoji.id else payload.emoji.name
-            try:
-                emoji_score: EmojiScore = await EmojiScore.objects.async_get(
-                    emoji_id=emoji_id
-                )
-                logger.debug("User's current social score is %d", user.social_score)
-                user.social_score -= emoji_score.score
-                logger.debug("User's new social score is %d", user.social_score)
-                await user.async_save()
-            except EmojiScore.DoesNotExist:
-                logger.warning("No emoji score registered for emoji ID %s", emoji_id)
+                logger.debug("No emoji score registered for emoji ID %s", emoji_id)

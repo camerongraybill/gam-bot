@@ -1,4 +1,4 @@
-from typing import Any, TypeVar, MutableMapping, Optional, cast
+from typing import Any, TypeVar, MutableMapping, Optional, cast, AsyncIterable
 
 from asgiref.sync import sync_to_async
 from django.db.models import QuerySet, Model
@@ -23,3 +23,16 @@ class AsyncEnabledQuerySet(QuerySet[_T]):
             return self.get_or_create(defaults=defaults, **kwargs)
 
         return cast(tuple[_T, bool], await _())
+
+    async def to_list(
+        self,
+    ) -> list[_T]:
+        @sync_to_async
+        def _() -> list[_T]:
+            return list(self)
+
+        return cast(list[_T], await _())
+
+    async def __aiter__(self) -> AsyncIterable[_T]:
+        for result in await self.to_list():
+            yield result

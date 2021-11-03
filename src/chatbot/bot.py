@@ -5,43 +5,16 @@ from itertools import groupby
 from operator import attrgetter
 
 from discord import GroupChannel, RawReactionActionEvent, TextChannel
-from discord.channel import DMChannel
-from discord.ext import commands
 from discord.ext.commands import Bot, Context
 from django.conf import settings
 
 from .models import GamUser, Prediction, PredictionChoice, Wager
+from .checks import is_in_channel, is_local_command
 
-from typing import TYPE_CHECKING
-
-if TYPE_CHECKING:
-    from discord.ext.commands import Command
-    from discord.ext.commands.core import _CheckDecorator
 
 logger = getLogger(__name__)
 
 bot = Bot(command_prefix="!")
-
-
-def is_in_channel(
-    command_channels: Optional[set[str]],
-) -> "_CheckDecorator":
-    @commands.check
-    async def predicate(ctx: Context) -> bool:
-        if command_channels and ctx.channel and not isinstance(ctx.channel, DMChannel):
-            return ctx.channel.name in command_channels
-        return True
-
-    return predicate
-
-
-def is_local_command() -> "_CheckDecorator":
-    @commands.check
-    # pylint: disable=unused-argument
-    async def predicate(ctx: Context) -> bool:
-        return settings.DEBUG
-
-    return predicate
 
 
 def make_easy_command(
@@ -109,19 +82,8 @@ async def make_wager(ctx: Context, choice: str, amount: int) -> None:
     if ctx.message.reference:
         thread_id = ctx.message.reference.message_id
         try:
-            prediction = await Prediction.objects.async_get(thread_id=thread_id)
-            if not prediction.open:
-                logger.info(
-                    "User tried wagering on closed prediction thread_id %d", thread_id
-                )
-                await ctx.message.add_reaction(settings.WAGER_ERROR_REACTION)
-                return
-
             user, _ = await GamUser.objects.async_get_or_create(
                 discord_id=ctx.message.author.id
-            )
-            prediction_choice = await PredictionChoice.objects.async_get(
-                choice__icontains=choice
             )
 
             if amount > user.gam_coins:
@@ -131,15 +93,27 @@ async def make_wager(ctx: Context, choice: str, amount: int) -> None:
                     amount,
                     user.gam_coins,
                 )
+                await ctx.message.add_reaction(settings.WAGER_NO_MONEY_REACTION)
+                return
+
+            prediction = await Prediction.objects.async_get(thread_id=thread_id)
+            if not prediction.open:
+                logger.info(
+                    "User tried wagering on closed prediction thread_id %d", thread_id
+                )
                 await ctx.message.add_reaction(settings.WAGER_ERROR_REACTION)
                 return
+
+            prediction_choice = await PredictionChoice.objects.async_get(
+                choice__icontains=choice,
+                prediction=prediction
+            )
 
             user.gam_coins -= amount
             await user.async_save()
 
-            wager = Wager(bettor=user, amount=amount, choice=prediction_choice)
+            await Wager.objects.async_create(bettor=user, amount=amount, choice=prediction_choice)
 
-            await wager.async_save()
             await ctx.message.add_reaction(settings.WAGER_SUCCESS_REACTION)
         except Prediction.DoesNotExist:
             # This should only happen if someone replies to the wrong message

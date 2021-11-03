@@ -70,7 +70,7 @@ strict_equality = true
 django_settings_module = "gam.settings.testing"
 
 [tool.pylint.MASTER]
-disable="C"
+disable="C,duplicate-code"
 load-plugins=["pylint_django"]
 django-settings-module="gam.settings.testing"
 

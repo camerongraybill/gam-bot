@@ -1,4 +1,4 @@
-from typing import Any, TypeVar, MutableMapping, Optional, AsyncIterable, Callable, Awaitable
+from typing import Any, TypeVar, MutableMapping, Optional, AsyncIterable, Callable, Awaitable, Iterable, Sequence
 
 from asgiref.sync import sync_to_async
 from django.db.models import QuerySet, Model
@@ -70,5 +70,29 @@ class AsyncEnabledQuerySet(QuerySet[_T]):
         @better_sync_to_async
         def _() -> int:
             return self.update(**kwargs)
+
+        return await _()
+
+    async def async_bulk_create(
+        self,
+        objs: Iterable[_T],
+        batch_size: Optional[int] = None,
+        ignore_conflicts: bool = False
+    ) -> list[_T]:
+        @better_sync_to_async
+        def _() -> list[_T]:
+            return self.bulk_create(objs, batch_size=batch_size, ignore_conflicts=ignore_conflicts)
+
+        return await _()
+
+    async def async_bulk_update(
+        self,
+        objs: Iterable[_T],
+        fields: Sequence[str],
+        batch_size: Optional[int] = None
+    ) -> None:
+        @better_sync_to_async
+        def _() -> None:
+            return self.bulk_update(objs, fields=fields, batch_size=batch_size)
 
         return await _()

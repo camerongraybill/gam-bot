@@ -19,6 +19,11 @@ EASY_MESSAGES: Sequence[tuple[str, Optional[set[str]], Sequence[str]]] = (
         None,
         ("https://camerongraybill.dev/thank-you-for-your-service.jpg",),
     ),
+    (
+        "doubt",
+        None,
+        ("https://camerongraybill.dev/doubt.jpg",),
+    ),
     ("version", None, (f"Gam bot version {get_distribution('gam_bot').version}",)),
 )
 

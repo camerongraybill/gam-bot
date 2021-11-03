@@ -105,14 +105,15 @@ async def make_wager(ctx: Context, choice: str, amount: int) -> None:
                 return
 
             prediction_choice = await PredictionChoice.objects.async_get(
-                choice__icontains=choice,
-                prediction=prediction
+                choice__icontains=choice, prediction=prediction
             )
 
             user.gam_coins -= amount
             await user.async_save()
 
-            await Wager.objects.async_create(bettor=user, amount=amount, choice=prediction_choice)
+            await Wager.objects.async_create(
+                bettor=user, amount=amount, choice=prediction_choice
+            )
 
             await ctx.message.add_reaction(settings.WAGER_SUCCESS_REACTION)
         except Prediction.DoesNotExist:
@@ -215,7 +216,7 @@ async def cancel_prediction(ctx: Context) -> None:
         thread_id = ctx.message.reference.message_id
         try:
             prediction = await Prediction.objects.async_get(thread_id=thread_id)
-            async for wager in Wager.objects.select_related().filter(choice__prediction=prediction): # type: ignore
+            async for wager in Wager.objects.select_related().filter(choice__prediction=prediction):  # type: ignore
                 # Refund user their wager size
                 wager.user.gam_coins += wager.amount
                 await wager.user.async_save()
@@ -234,6 +235,7 @@ async def cancel_prediction(ctx: Context) -> None:
         logger.info(
             "User tried to cancel prediction without replying to a prediction thread."
         )
+
 
 @bot.command()
 @is_local_command()

@@ -10,6 +10,7 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from discord.ext.commands.core import _CheckDecorator
 
+
 def is_in_channel(
     command_channels: Optional[set[str]],
 ) -> "_CheckDecorator":

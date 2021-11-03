@@ -1,4 +1,14 @@
-from typing import Any, TypeVar, MutableMapping, Optional, AsyncIterable, Callable, Awaitable, Iterable, Sequence
+from typing import (
+    Any,
+    TypeVar,
+    MutableMapping,
+    Optional,
+    AsyncIterable,
+    Callable,
+    Awaitable,
+    Iterable,
+    Sequence,
+)
 
 from asgiref.sync import sync_to_async
 from django.db.models import QuerySet, Model
@@ -42,10 +52,7 @@ class AsyncEnabledQuerySet(QuerySet[_T]):
         for result in await self.to_list():
             yield result
 
-    async def async_create(
-        self,
-        **kwargs: Any
-    ) -> _T:
+    async def async_create(self, **kwargs: Any) -> _T:
         @better_sync_to_async
         def _() -> _T:
             return self.create(**kwargs)
@@ -53,9 +60,7 @@ class AsyncEnabledQuerySet(QuerySet[_T]):
         return await _()
 
     async def async_update_or_create(
-        self,
-        defaults: Optional[MutableMapping[str, Any]] = None,
-        **kwargs: Any
+        self, defaults: Optional[MutableMapping[str, Any]] = None, **kwargs: Any
     ) -> tuple[_T, bool]:
         @better_sync_to_async
         def _() -> tuple[_T, bool]:
@@ -63,10 +68,7 @@ class AsyncEnabledQuerySet(QuerySet[_T]):
 
         return await _()
 
-    async def async_update(
-        self,
-        **kwargs: Any
-    ) -> int:
+    async def async_update(self, **kwargs: Any) -> int:
         @better_sync_to_async
         def _() -> int:
             return self.update(**kwargs)
@@ -77,11 +79,13 @@ class AsyncEnabledQuerySet(QuerySet[_T]):
         self,
         objs: Iterable[_T],
         batch_size: Optional[int] = None,
-        ignore_conflicts: bool = False
+        ignore_conflicts: bool = False,
     ) -> list[_T]:
         @better_sync_to_async
         def _() -> list[_T]:
-            return self.bulk_create(objs, batch_size=batch_size, ignore_conflicts=ignore_conflicts)
+            return self.bulk_create(
+                objs, batch_size=batch_size, ignore_conflicts=ignore_conflicts
+            )
 
         return await _()
 
@@ -89,7 +93,7 @@ class AsyncEnabledQuerySet(QuerySet[_T]):
         self,
         objs: Iterable[_T],
         fields: Sequence[str],
-        batch_size: Optional[int] = None
+        batch_size: Optional[int] = None,
     ) -> None:
         @better_sync_to_async
         def _() -> None:

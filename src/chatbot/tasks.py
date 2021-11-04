@@ -8,7 +8,7 @@ from discord.ext import tasks
 
 from .models import GamUser
 
-from typing import TypeVar, TYPE_CHECKING
+from typing import TYPE_CHECKING
 
 logger = getLogger(__name__)
 
@@ -17,11 +17,11 @@ if TYPE_CHECKING:
     from discord.ext.commands import Bot
 
 
-# pylint: disable=inherit-non-class
+# pylint: disable=inherit-non-class,unsubscriptable-object
 class UserPresenceDetectorCog(Cog[Context]):
     def __init__(self, bot: "Bot[Context]"):
         self.bot = bot
-        self.check_user_presence.start() # pylint: disable=no-member
+        self.check_user_presence.start()  # pylint: disable=no-member
 
     @tasks.loop(minutes=1.0)
     async def check_user_presence(self) -> None:

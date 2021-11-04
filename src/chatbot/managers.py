@@ -22,39 +22,39 @@ if TYPE_CHECKING:
 
         async def to_list(
             self,
-        ) -> list[_T]: ...
+        ) -> list[_T]:
+            ...
 
-        async def __aiter__(self) -> AsyncIterable[_T]: ...
+        async def __aiter__(self) -> AsyncIterable[_T]:
+            ...
 
-        async def async_create(
-            self,
-            **kwargs: Any
-        ) -> _T: ...
+        async def async_create(self, **kwargs: Any) -> _T:
+            ...
 
         async def async_update_or_create(
-            self,
-            defaults: Optional[MutableMapping[str, Any]] = None,
-            **kwargs: Any
-        ) -> tuple[_T, bool]: ...
+            self, defaults: Optional[MutableMapping[str, Any]] = None, **kwargs: Any
+        ) -> tuple[_T, bool]:
+            ...
 
-        async def async_update(
-            self,
-            **kwargs: Any
-        ) -> int: ...
+        async def async_update(self, **kwargs: Any) -> int:
+            ...
 
         async def async_bulk_create(
             self,
             objs: Iterable[_T],
             batch_size: Optional[int] = None,
-            ignore_conflicts: bool = False
-        ) -> list[_T]: ...
+            ignore_conflicts: bool = False,
+        ) -> list[_T]:
+            ...
 
         async def async_bulk_update(
             self,
             objs: Iterable[_T],
             fields: Sequence[str],
-            batch_size: Optional[int] = None
-        ) -> None: ...
+            batch_size: Optional[int] = None,
+        ) -> None:
+            ...
+
 
 else:
     _Base = BaseManager.from_queryset(AsyncEnabledQuerySet[_T])

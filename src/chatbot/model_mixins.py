@@ -5,7 +5,7 @@ from django.db.models import Model
 from chatbot.managers import AsyncEnabledManager
 from chatbot.querysets import AsyncEnabledQuerySet, better_sync_to_async
 
-_T = TypeVar('_T', bound=Model)
+_T = TypeVar("_T", bound=Model)
 
 
 class AsyncModelMixin:
@@ -18,10 +18,11 @@ class AsyncModelMixin:
 
     @classmethod
     def async_qs(cls: Type[_T]) -> AsyncEnabledQuerySet[_T]:  # type: ignore
-        assert isinstance(cls.objects, AsyncEnabledManager)
+        if not isinstance(cls.objects, AsyncEnabledManager):
+            raise AssertionError()
         return cls.objects.all()  # type: ignore
 
-    async def async_destroy(self: _T) -> None:  # type: ignore
+    async def async_delete(self: _T) -> None:  # type: ignore
         @better_sync_to_async
         def _() -> None:
             self.delete()

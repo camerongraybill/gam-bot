@@ -5,15 +5,23 @@ from itertools import groupby
 
 from discord import GroupChannel, RawReactionActionEvent, TextChannel
 from discord.ext.commands import Bot, Context
+from discord.flags import Intents
 from django.conf import settings
 
 from .models import GamUser, Prediction, PredictionChoice, Wager
 from .checks import is_in_channel, is_local_command
+from .tasks import UserPresenceDetectorCog
 
 
 logger = getLogger(__name__)
 
-bot = Bot(command_prefix="!")
+# This will enable everything, Intents.default() just calls .all() and disables
+# presences and members which we need
+intents = Intents.all()
+bot = Bot(command_prefix="!", intents=intents)
+
+# Add any tasks/cogs here
+bot.add_cog(UserPresenceDetectorCog(bot))
 
 
 def make_easy_command(

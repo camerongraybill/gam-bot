@@ -259,6 +259,15 @@ async def add_coins(ctx: Context, amount: int) -> None:
     await user.async_save()
 
 
+@bot.command()
+async def check_balance(ctx: Context) -> None:
+    user, _ = await GamUser.objects.async_get_or_create(
+        discord_id=ctx.message.author.id
+    )
+    dm_channel = ctx.author.dm_channel or await ctx.author.create_dm()
+    await dm_channel.send(f"Your GamCoin balance is {user.gam_coins} coins.")
+
+
 @bot.event
 async def on_raw_reaction_add(payload: RawReactionActionEvent) -> None:
     channel = await bot.fetch_channel(payload.channel_id)

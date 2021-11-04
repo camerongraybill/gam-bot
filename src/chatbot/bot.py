@@ -251,6 +251,7 @@ async def add_coins(ctx: Context, amount: int) -> None:
     user.gam_coins += amount
     await user.async_save()
 
+
 @bot.command()
 @is_in_channel({"bot-commands"})
 async def register_score(

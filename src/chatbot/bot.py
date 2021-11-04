@@ -268,6 +268,7 @@ async def check_balance(ctx: Context) -> None:
     dm_channel = ctx.author.dm_channel or await ctx.author.create_dm()
     await dm_channel.send(f"Your GamCoin balance is {user.gam_coins} coins.")
 
+
 @bot.command()
 @is_in_channel({"bot-commands"})
 async def register_score(

@@ -66,6 +66,10 @@ warn_unreachable = true
 implicit_reexport = false
 strict_equality = true
 
+[[tool.mypy.overrides]]
+module = ["*.migrations.*"]
+ignore_errors = true
+
 [tool.django-stubs]
 django_settings_module = "gam.settings.testing"
 

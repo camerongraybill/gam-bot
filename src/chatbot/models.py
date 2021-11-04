@@ -39,3 +39,10 @@ class Wager(models.Model, AsyncModelMixin):
     )  # Choice they're wagering on
 
     objects = AsyncEnabledManager["Wager"]()
+
+
+class EmojiScore(models.Model, AsyncModelMixin):
+    emoji_id = models.TextField()
+    score = models.IntegerField(default=0)
+
+    objects = AsyncEnabledManager["EmojiScore"]()

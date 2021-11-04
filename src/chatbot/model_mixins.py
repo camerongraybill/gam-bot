@@ -22,9 +22,9 @@ class AsyncModelMixin:
             raise AssertionError()
         return cls.objects.all()  # type: ignore
 
-    async def async_delete(self) -> None:
+    async def async_delete(self: _T) -> None:  # type: ignore
         @better_sync_to_async
         def _() -> None:
-            self.delete()  # type: ignore
+            self.delete()
 
         await _()

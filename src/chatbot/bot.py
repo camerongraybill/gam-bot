@@ -9,7 +9,14 @@ from discord.flags import Intents
 from discord.partial_emoji import PartialEmoji
 from django.conf import settings
 
-from .models import EmojiScore, GamUser, Prediction, PredictionChoice, Wager
+from .models import (
+    EmojiScore,
+    GamUser,
+    Prediction,
+    PredictionChoice,
+    PredictionState,
+    Wager,
+)
 from .checks import is_in_channel, is_local_command
 from .tasks import UserPresenceDetectorCog
 
@@ -106,8 +113,10 @@ async def make_wager(ctx: Context, choice: str, amount: int) -> None:
                 await ctx.message.add_reaction(settings.WAGER_NO_MONEY_REACTION)
                 return
 
-            prediction = await Prediction.objects.async_get(thread_id=thread_id)
-            if not prediction.open:
+            prediction: Prediction = await Prediction.objects.async_get(
+                thread_id=thread_id
+            )
+            if prediction.state != PredictionState.ACCEPTING_WAGERS:
                 logger.info(
                     "User tried wagering on closed prediction thread_id %d", thread_id
                 )
@@ -149,10 +158,19 @@ async def close(ctx: Context) -> None:
     if ctx.message.reference:
         thread_id = ctx.message.reference.message_id
         try:
-            prediction = await Prediction.objects.async_get(thread_id=thread_id)
-            prediction.open = False
-            await prediction.async_save()
-            await ctx.message.add_reaction(settings.WAGER_SUCCESS_REACTION)
+            prediction: Prediction = await Prediction.objects.async_get(
+                thread_id=thread_id
+            )
+            if prediction.state == PredictionState.ACCEPTING_WAGERS:
+                prediction.state = PredictionState.WAITING_FOR_RESOLUTION
+                await prediction.async_save()
+                await ctx.message.add_reaction(settings.WAGER_SUCCESS_REACTION)
+            else:
+                logger.debug(
+                    "User tried closing an already closed/resolved prediction %d",
+                    prediction.thread_id,
+                )
+                await ctx.message.add_reaction(settings.WAGER_ERROR_REACTION)
         except Prediction.DoesNotExist:
             # This should only happen if someone replies to the wrong message
             logger.info(
@@ -171,9 +189,13 @@ async def resolve(ctx: Context, correct_choice: str) -> None:
     # and then assigning a payout based on their relative pot contributions
     if ctx.message.reference:
         try:
-            prediction = await Prediction.objects.async_get(
+            prediction: Prediction = await Prediction.objects.async_get(
                 thread_id=ctx.message.reference.message_id
             )
+            if prediction.state == PredictionState.RESOLVED:
+                logger.debug("User tried resolving already resolved prediction")
+                return
+
             correct_prediction_coice = await PredictionChoice.objects.async_get(
                 prediction=prediction, choice=correct_choice.lower()
             )
@@ -204,6 +226,8 @@ async def resolve(ctx: Context, correct_choice: str) -> None:
                 winner_strings.append(f"{discord_user.name} won {coins_to_award} coins")
                 await user_wagers[0].user.async_save()
             await ctx.message.reply(f"{', '.join(winner_strings)}!")
+            prediction.state = PredictionState.RESOLVED
+            await prediction.async_save()
         except Prediction.DoesNotExist:
             # This should only happen if someone replies to the wrong message
             logger.info(

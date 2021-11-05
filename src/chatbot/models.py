@@ -12,12 +12,20 @@ class GamUser(models.Model, AsyncModelMixin):
     objects = AsyncEnabledManager["GamUser"]()
 
 
+class PredictionState(models.IntegerChoices):
+    ACCEPTING_WAGERS = 1
+    WAITING_FOR_RESOLUTION = 2
+    RESOLVED = 3
+
+
 class Prediction(models.Model, AsyncModelMixin):
     prediction_text = models.TextField()
     thread_id = models.BigIntegerField(
         null=True
     )  # This is the ID of the message the bot sends that replies should go to
-    open = models.BooleanField(default=True)  # True if wagers can be placed
+    state = models.IntegerField(
+        choices=PredictionState.choices, default=PredictionState.ACCEPTING_WAGERS
+    )
 
     objects = AsyncEnabledManager["Prediction"]()
 

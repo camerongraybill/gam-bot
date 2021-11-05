@@ -10,23 +10,31 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ('discord_bot', '0001_initial'),
+        ("discord_bot", "0001_initial"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='EmojiScore',
+            name="EmojiScore",
             fields=[
-                ('emoji_id', models.TextField(primary_key=True, serialize=False)),
-                ('score', models.IntegerField(default=0)),
+                ("emoji_id", models.TextField(primary_key=True, serialize=False)),
+                ("score", models.IntegerField(default=0)),
             ],
             bases=(models.Model, async_helpers.mixins.AsyncModelMixin),
         ),
         migrations.CreateModel(
-            name='SocialScore',
+            name="SocialScore",
             fields=[
-                ('user', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, primary_key=True, serialize=False, to='discord_bot.discorduser')),
-                ('score', models.IntegerField(default=0)),
+                (
+                    "user",
+                    models.OneToOneField(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        primary_key=True,
+                        serialize=False,
+                        to="discord_bot.discorduser",
+                    ),
+                ),
+                ("score", models.IntegerField(default=0)),
             ],
             bases=(models.Model, async_helpers.mixins.AsyncModelMixin),
         ),

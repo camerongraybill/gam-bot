@@ -6,4 +6,4 @@ from .managers import DiscordUserManager
 class DiscordUser(models.Model, AsyncModelMixin):
     discord_id = models.PositiveBigIntegerField(primary_key=True)
 
-    objects = DiscordUserManager['DiscordUser']()
+    objects = DiscordUserManager["DiscordUser"]()

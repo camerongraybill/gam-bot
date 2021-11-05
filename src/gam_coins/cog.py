@@ -1,4 +1,4 @@
-from itertools import groupby
+from itertools import groupby, chain
 from logging import getLogger
 from typing import Optional, Mapping
 
@@ -9,17 +9,14 @@ from discord_bot.checks import only_debug
 from discord_bot.cog import BaseCog
 from .models import Prediction, Account, Wager, PredictionChoice
 from . import settings
+
 logger = getLogger(__name__)
 
-
+# pylint: disable=no-self-use
 class SocialScoreCog(BaseCog):
-
     @commands.command()
     async def make_prediction(
-        self,
-        ctx: Context,
-        prediction_text: str,
-        options: Optional[str]
+        self, ctx: Context, prediction_text: str, options: Optional[str]
     ) -> None:
         if not options:
             options = "yes,no"
@@ -56,7 +53,8 @@ class SocialScoreCog(BaseCog):
                 prediction = await Prediction.objects.async_get(thread_id=thread_id)
                 if not prediction.open:
                     logger.info(
-                        "User tried wagering on closed prediction thread_id %d", thread_id
+                        "User tried wagering on closed prediction thread_id %d",
+                        thread_id,
                     )
                     await ctx.message.add_reaction(settings.ERROR_REACTION)
                     return
@@ -87,7 +85,7 @@ class SocialScoreCog(BaseCog):
                 logger.info(
                     "User's provided choice %s did not match any choices available for prediction %d",
                     choice,
-                    prediction.id,
+                    prediction.thread_id,
                 )
                 await ctx.message.add_reaction(settings.ERROR_REACTION)
         else:
@@ -127,14 +125,14 @@ class SocialScoreCog(BaseCog):
             thread_id = ctx.message.reference.message_id
             try:
                 prediction = await Prediction.objects.async_get(thread_id=thread_id)
-                async for wager in Wager.objects.select_related('account').filter(choice__prediction=prediction):  # type: ignore
+                async for wager in Wager.objects.select_related("account").filter(choice__prediction=prediction):  # type: ignore
                     # Refund user their wager size
                     account = wager.account
                     account.coins += wager.amount
                     await account.async_save()
                 # Delete the prediction and all associated data
                 await prediction.async_delete()
-                await ctx.message.add_reaction(settings.WAGER_SUCCESS_REACTION)
+                await ctx.message.add_reaction(settings.SUCCESS_REACTION)
             except Prediction.DoesNotExist:
                 # This should only happen if someone replies to the wrong message or the prediction already
                 # was deleted
@@ -142,52 +140,61 @@ class SocialScoreCog(BaseCog):
                     "User tried cancelling on thread_id %d which does not correspond to a prediction",
                     thread_id,
                 )
-                await ctx.message.add_reaction(settings.WAGER_ERROR_REACTION)
+                await ctx.message.add_reaction(settings.ERROR_REACTION)
         else:
             logger.info(
                 "User tried to cancel prediction without replying to a prediction thread."
             )
 
     @commands.command()
-    async def resolve(
-        self,
-        ctx: Context,
-        correct_choice: str
-    ) -> None:
+    async def resolve(self, ctx: Context, correct_choice: str) -> None:
+        # pylint: disable=too-many-locals
         # Resolves a prediction thread by getting all users that made the correct choice
         # and then assigning a payout based on their relative pot contributions
         if ctx.message.reference:
             try:
-                prediction = await Prediction.objects.async_get(
-                    thread_id=ctx.message.reference.message_id
-                )
+                prediction = await Prediction.async_qs().prefetch_related(
+                    "predictionchoice_set", "predictionchoice_set__wager_set__account"
+                ).async_get(thread_id=ctx.message.reference.message_id)
             except Prediction.DoesNotExist:
                 # This should only happen if someone replies to the wrong message
                 logger.info(
                     "User tried resolving on thread_id %d which does not correspond to a prediction",
                     ctx.message.reference.message_id,
                 )
-                await ctx.message.add_reaction(settings.WAGER_ERROR_REACTION)
+                await ctx.message.add_reaction(settings.ERROR_REACTION)
                 return
-            try:
-                correct_prediction_coice = await PredictionChoice.objects.async_get(
-                    prediction=prediction, choice=correct_choice.lower()
-                )
-            except PredictionChoice.DoesNotExist:
+            correct_prediction_choice = next(
+                (
+                    x
+                    for x in prediction.predictionchoice_set.all()
+                    if x.choice == correct_choice.lower()
+                ),
+                None,
+            )
+            if not correct_prediction_choice:
                 logger.info(
                     "Correct choice %s did not match any choices available for prediction %d",
                     correct_choice,
-                    prediction.id,
+                    prediction.thread_id,
                 )
-                await ctx.message.add_reaction(settings.WAGER_ERROR_REACTION)
+                await ctx.message.add_reaction(settings.ERROR_REACTION)
                 return
             # Get all wagers associated with this prediction, select_related to get our FK models
-            wagers = await Wager.objects.select_related().filter(choice__prediction=prediction).to_list()  # type: ignore
+            wagers = list(
+                chain.from_iterable(
+                    x.wager_set.all() for x in prediction.predictionchoice_set.all()
+                )
+            )
             pot = sum([wager.amount for wager in wagers])
             # Get all wagers associated with the correct choice and sort
             discord_id_lambda = lambda wager: wager.account.discord_id
             correct_wagers = sorted(
-                [wager for wager in wagers if wager.choice == correct_prediction_coice],
+                [
+                    wager
+                    for wager in wagers
+                    if wager.choice == correct_prediction_choice
+                ],
                 key=discord_id_lambda,
             )
             # Get the sum of correct wagers
@@ -213,6 +220,4 @@ class SocialScoreCog(BaseCog):
             logger.info(
                 "User tried to resolve prediction without replying to a prediction thread."
             )
-            await ctx.message.add_reaction(settings.WAGER_ERROR_REACTION)
-
-
+            await ctx.message.add_reaction(settings.ERROR_REACTION)

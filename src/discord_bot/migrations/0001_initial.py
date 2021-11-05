@@ -8,14 +8,16 @@ class Migration(migrations.Migration):
 
     initial = True
 
-    dependencies = [
-    ]
+    dependencies = []
 
     operations = [
         migrations.CreateModel(
-            name='DiscordUser',
+            name="DiscordUser",
             fields=[
-                ('discord_id', models.PositiveBigIntegerField(primary_key=True, serialize=False)),
+                (
+                    "discord_id",
+                    models.PositiveBigIntegerField(primary_key=True, serialize=False),
+                ),
             ],
             bases=(models.Model, async_helpers.mixins.AsyncModelMixin),
         ),

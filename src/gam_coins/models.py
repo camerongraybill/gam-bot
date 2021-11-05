@@ -1,6 +1,6 @@
 from django.db import models
 
-from .managers import AsyncEnabledManager
+from async_helpers.managers import AsyncEnabledManager
 from async_helpers.mixins import AsyncModelMixin
 from discord_bot.models import DiscordUser
 from .managers import AccountManager
@@ -30,7 +30,7 @@ class PredictionChoice(models.Model, AsyncModelMixin):
     objects = AsyncEnabledManager["PredictionChoice"]()
 
     class Meta:
-        unique_together = ('prediction', 'choice')
+        unique_together = ("prediction", "choice")
 
 
 class Wager(models.Model, AsyncModelMixin):

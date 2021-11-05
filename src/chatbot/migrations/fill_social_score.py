@@ -13,8 +13,8 @@ def forwards_func(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('chatbot', 'fill_discord_bot'),
-        ('social_score', '__first__'),
+        ("chatbot", "fill_discord_bot"),
+        ("social_score", "__first__"),
     ]
 
     operations = [

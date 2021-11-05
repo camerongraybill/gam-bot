@@ -29,10 +29,10 @@ EASY_MESSAGES: Sequence[tuple[str, Optional[set[str]], Sequence[str]]] = (
 # Discord settings
 
 DISCORD_COGS = [
-    'lmgtfy.cog.LMGTFYCog',
-    'easy_messages.cog.EasyCog',
-    'social_score.cog.SocialScoreCog',
-    'gam_coins.cog.GamCoinsCog',
+    "lmgtfy.cog.LMGTFYCog",
+    "easy_messages.cog.EasyCog",
+    "social_score.cog.SocialScoreCog",
+    "gam_coins.cog.GamCoinsCog",
 ]
 
 DISCORD_KEY = getenv("DISCORD_KEY", None)

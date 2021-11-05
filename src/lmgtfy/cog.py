@@ -7,9 +7,9 @@ from discord_bot.cog import BaseCog
 
 
 class LMGTFYCog(BaseCog):
-
     @commands.command()
-    async def lmgtfy(self, ctx: Context):
+    # pylint: disable=no-self-use
+    async def lmgtfy(self, ctx: Context) -> None:
         message = ctx.message
         chan = message.channel
         if message.reference is not None and message.reference.message_id is not None:

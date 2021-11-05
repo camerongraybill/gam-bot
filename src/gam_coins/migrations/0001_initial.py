@@ -10,46 +10,91 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ('discord_bot', '0001_initial'),
+        ("discord_bot", "0001_initial"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Account',
+            name="Account",
             fields=[
-                ('user', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, primary_key=True, serialize=False, to='discord_bot.discorduser')),
-                ('coins', models.PositiveIntegerField(default=0)),
+                (
+                    "user",
+                    models.OneToOneField(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        primary_key=True,
+                        serialize=False,
+                        to="discord_bot.discorduser",
+                    ),
+                ),
+                ("coins", models.PositiveIntegerField(default=0)),
             ],
             bases=(models.Model, async_helpers.mixins.AsyncModelMixin),
         ),
         migrations.CreateModel(
-            name='Prediction',
+            name="Prediction",
             fields=[
-                ('prediction_text', models.TextField()),
-                ('thread_id', models.BigIntegerField(primary_key=True, serialize=False)),
-                ('open', models.BooleanField(default=True)),
+                ("prediction_text", models.TextField()),
+                (
+                    "thread_id",
+                    models.BigIntegerField(primary_key=True, serialize=False),
+                ),
+                ("open", models.BooleanField(default=True)),
             ],
             bases=(models.Model, async_helpers.mixins.AsyncModelMixin),
         ),
         migrations.CreateModel(
-            name='PredictionChoice',
+            name="PredictionChoice",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('choice', models.TextField()),
-                ('prediction', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='gam_coins.prediction')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("choice", models.TextField()),
+                (
+                    "prediction",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="gam_coins.prediction",
+                    ),
+                ),
             ],
             options={
-                'unique_together': {('prediction', 'choice')},
+                "unique_together": {("prediction", "choice")},
             },
             bases=(models.Model, async_helpers.mixins.AsyncModelMixin),
         ),
         migrations.CreateModel(
-            name='Wager',
+            name="Wager",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('amount', models.PositiveIntegerField()),
-                ('account', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='gam_coins.account')),
-                ('choice', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='gam_coins.predictionchoice')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("amount", models.PositiveIntegerField()),
+                (
+                    "account",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="gam_coins.account",
+                    ),
+                ),
+                (
+                    "choice",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="gam_coins.predictionchoice",
+                    ),
+                ),
             ],
             bases=(models.Model, async_helpers.mixins.AsyncModelMixin),
         ),

@@ -1,7 +1,7 @@
 from django.db import models
 
-from chatbot.managers import AsyncEnabledManager
-from chatbot.model_mixins import AsyncModelMixin
+from async_helpers.managers import AsyncEnabledManager
+from async_helpers.mixins import AsyncModelMixin
 
 
 class GamUser(models.Model, AsyncModelMixin):

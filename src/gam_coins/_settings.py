@@ -17,6 +17,10 @@ class _Settings:
     def SUCCESS_REACTION(self) -> str:
         return cast(str, getattr(django_settings, "GAM_COINS_SUCCESS_REACTION", "✅"))
 
+    @cached_property
+    def INCOME_PER_MINUTE(self) -> int:
+        return cast(int, getattr(django_settings, "GAM_COINS_INCOME_PER_MINUTE", 10))
+
 
 def get_settings() -> _Settings:
     return _Settings()

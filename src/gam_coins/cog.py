@@ -1,8 +1,9 @@
 from itertools import groupby, chain
 from logging import getLogger
-from typing import Optional, Mapping
+from typing import Optional, Mapping, TYPE_CHECKING
 
-from discord.ext import commands
+from discord.enums import Status
+from discord.ext import commands, tasks
 from discord.ext.commands import Context
 
 from discord_bot.checks import only_debug
@@ -10,10 +11,19 @@ from discord_bot.cog import BaseCog
 from .models import Prediction, Account, Wager, PredictionChoice
 from . import settings
 
+if TYPE_CHECKING:
+    from discord.ext.commands import Bot
+
 logger = getLogger(__name__)
+
 
 # pylint: disable=no-self-use
 class SocialScoreCog(BaseCog):
+    def __init__(self, bot: "Bot[Context]") -> None:
+        super().__init__(bot)
+        # pylint: disable=no-member
+        self.check_user_presence.start()
+
     @commands.command()
     async def make_prediction(
         self, ctx: Context, prediction_text: str, options: Optional[str]
@@ -153,9 +163,14 @@ class SocialScoreCog(BaseCog):
         # and then assigning a payout based on their relative pot contributions
         if ctx.message.reference:
             try:
-                prediction = await Prediction.async_qs().prefetch_related(
-                    "predictionchoice_set", "predictionchoice_set__wager_set__account"
-                ).async_get(thread_id=ctx.message.reference.message_id)
+                prediction = (
+                    await Prediction.async_qs()
+                    .prefetch_related(
+                        "predictionchoice_set",
+                        "predictionchoice_set__wager_set__account",
+                    )
+                    .async_get(thread_id=ctx.message.reference.message_id)
+                )
             except Prediction.DoesNotExist:
                 # This should only happen if someone replies to the wrong message
                 logger.info(
@@ -221,3 +236,20 @@ class SocialScoreCog(BaseCog):
                 "User tried to resolve prediction without replying to a prediction thread."
             )
             await ctx.message.add_reaction(settings.ERROR_REACTION)
+
+    @tasks.loop(minutes=1.0)
+    async def check_user_presence(self) -> None:
+        for user in self.bot.get_all_members():
+            account = await Account.objects.lookup_account(user.id)
+            if (
+                isinstance(user.status, Status)
+                and user.status is Status.online
+                and not user.bot
+            ):
+                account.coins += settings.INCOME_PER_MINUTE
+                await account.async_save()
+
+    @check_user_presence.before_loop  # type: ignore
+    async def before_check_user_presence(self) -> None:
+        logger.info("Waiting for bot to start before checking user presence")
+        await self.bot.wait_until_ready()

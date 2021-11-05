@@ -6,9 +6,8 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('chatbot', 'fill_gam_coins'),
-        ('chatbot', 'fill_social_score'),
+        ("chatbot", "fill_gam_coins"),
+        ("chatbot", "fill_social_score"),
     ]
 
-    operations = [
-    ]
+    operations = []

@@ -5,16 +5,24 @@ from itertools import groupby
 
 from discord import GroupChannel, RawReactionActionEvent, TextChannel
 from discord.ext.commands import Bot, Context
+from discord.flags import Intents
 from discord.partial_emoji import PartialEmoji
 from django.conf import settings
 
 from .models import EmojiScore, GamUser, Prediction, PredictionChoice, Wager
 from .checks import is_in_channel, is_local_command
+from .tasks import UserPresenceDetectorCog
 
 
 logger = getLogger(__name__)
 
-bot = Bot(command_prefix="!")
+# This will enable everything, Intents.default() just calls .all() and disables
+# presences and members which we need
+intents = Intents.all()
+bot = Bot(command_prefix="!", intents=intents)
+
+# Add any tasks/cogs here
+bot.add_cog(UserPresenceDetectorCog(bot))
 
 
 def make_easy_command(
@@ -250,6 +258,15 @@ async def add_coins(ctx: Context, amount: int) -> None:
     )
     user.gam_coins += amount
     await user.async_save()
+
+
+@bot.command()
+async def check_balance(ctx: Context) -> None:
+    user, _ = await GamUser.objects.async_get_or_create(
+        discord_id=ctx.message.author.id
+    )
+    dm_channel = ctx.author.dm_channel or await ctx.author.create_dm()
+    await dm_channel.send(f"Your GamCoin balance is {user.gam_coins} coins.")
 
 
 @bot.command()

@@ -37,7 +37,7 @@ def reverse_func(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('chatbot', '0007_merge_0005_emojiscore_0006_rename_bettor_wager_user'),
+        ('chatbot', 'fill_discord_bot'),
         ('social_score', '__first__'),
     ]
 

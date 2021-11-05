@@ -33,6 +33,7 @@ class UserPresenceDetectorCog(Cog):  # type: ignore
                 and not user.bot
             ):
                 gam_user.gam_coins += settings.GAM_COINS_PER_MINUTE
+                await gam_user.async_save()
 
     @check_user_presence.before_loop  # type: ignore
     async def before_check_user_presence(self) -> None:

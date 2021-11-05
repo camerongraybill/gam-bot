@@ -2,15 +2,16 @@ from typing import Type, TypeVar
 
 from django.db.models import Model
 
-from chatbot.managers import AsyncEnabledManager
-from chatbot.querysets import AsyncEnabledQuerySet, better_sync_to_async
+from .managers import AsyncEnabledManager
+from .querysets import AsyncEnabledQuerySet
+from .utils import sync_to_async
 
 _T = TypeVar("_T", bound=Model)
 
 
 class AsyncModelMixin:
     async def async_save(self: _T) -> None:  # type: ignore
-        @better_sync_to_async
+        @sync_to_async
         def _() -> None:
             self.save()
 
@@ -23,7 +24,7 @@ class AsyncModelMixin:
         return cls.objects.all()  # type: ignore
 
     async def async_delete(self: _T) -> None:  # type: ignore
-        @better_sync_to_async
+        @sync_to_async
         def _() -> None:
             self.delete()
 

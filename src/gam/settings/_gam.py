@@ -37,6 +37,7 @@ WAGER_SUCCESS_REACTION = "✅"
 DISCORD_COGS = [
     'lmgtfy.cog.LMGTFYCog',
     'easy_messages.cog.EasyCog',
+    'social_score.cog.SocialScoreCog',
 ]
 
 DISCORD_KEY = getenv("DISCORD_KEY", None)

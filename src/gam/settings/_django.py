@@ -35,6 +35,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "chatbot",
     "discord_bot",
+    "social_score",
 ]
 
 MIDDLEWARE = [

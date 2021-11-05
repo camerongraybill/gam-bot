@@ -3,7 +3,7 @@ from discord.enums import Status
 
 from django.conf import settings
 
-from discord.ext.commands import Cog, Context
+from discord.ext.commands import Cog
 from discord.ext import tasks
 
 from .models import GamUser
@@ -14,11 +14,11 @@ logger = getLogger(__name__)
 
 
 if TYPE_CHECKING:
-    from discord.ext.commands import Bot
+    from discord.ext.commands import Bot, Context
 
 
-# pylint: disable=inherit-non-class,unsubscriptable-object
-class UserPresenceDetectorCog(Cog[Context]):
+# pylint: disable=inherit-non-class
+class UserPresenceDetectorCog(Cog):  # type: ignore
     def __init__(self, bot: "Bot[Context]"):
         self.bot = bot
         self.check_user_presence.start()  # pylint: disable=no-member

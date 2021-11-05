@@ -12,11 +12,6 @@ def forwards_func(apps, schema_editor):
     )
 
 
-def reverse_func(apps, schema_editor):
-    DiscordUser = apps.get_model("discord_bot", "DiscordUser")
-    DiscordUser.objects.all().delete()
-
-
 class Migration(migrations.Migration):
 
     dependencies = [
@@ -25,5 +20,5 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RunPython(forwards_func, reverse_func),
+        migrations.RunPython(forwards_func),
     ]

@@ -36,6 +36,7 @@ INSTALLED_APPS = [
     "chatbot",
     "discord_bot",
     "social_score",
+    "gam_coins",
 ]
 
 MIDDLEWARE = [

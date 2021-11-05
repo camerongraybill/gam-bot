@@ -3,7 +3,6 @@ from typing import Sequence, Optional
 
 from pkg_resources import get_distribution
 
-DISCORD_KEY = getenv("DISCORD_KEY", None)
 
 EASY_MESSAGES: Sequence[tuple[str, Optional[set[str]], Sequence[str]]] = (
     (
@@ -28,11 +27,18 @@ EASY_MESSAGES: Sequence[tuple[str, Optional[set[str]], Sequence[str]]] = (
 )
 
 
-TRIGGER = "!"
-
-ADD_SOCIAL_SCORE = "⬆️"
-REMOVE_SOCIAL_SCORE = "⬇️"
-
 WAGER_ERROR_REACTION = "❗"
 WAGER_NO_MONEY_REACTION = "💸"
 WAGER_SUCCESS_REACTION = "✅"
+
+
+# Discord settings
+
+DISCORD_COGS = [
+    'lmgtfy.cog.LMGTFYCog',
+    'easy_messages.cog.EasyCog',
+]
+
+DISCORD_KEY = getenv("DISCORD_KEY", None)
+
+DISCORD_COMMAND_PREFIX = "!"

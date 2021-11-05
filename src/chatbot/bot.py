@@ -1,6 +1,5 @@
 from logging import getLogger
-from typing import Mapping, Optional, Sequence, Union
-from urllib.parse import urlencode
+from typing import Mapping, Optional, Union
 from itertools import groupby
 
 from discord import GroupChannel, RawReactionActionEvent, TextChannel
@@ -9,45 +8,12 @@ from discord.partial_emoji import PartialEmoji
 from django.conf import settings
 
 from .models import EmojiScore, GamUser, Prediction, PredictionChoice, Wager
-from .checks import is_in_channel, is_local_command
+from discord_bot.checks import is_in_channel
 
 
 logger = getLogger(__name__)
 
 bot = Bot(command_prefix="!")
-
-
-def make_easy_command(
-    command_keyword: str,
-    command_channels: Optional[set[str]],
-    command_responses: Sequence[str],
-) -> None:
-    @bot.command(name=command_keyword)
-    @is_in_channel(command_channels)
-    async def _easy_message_function(ctx: Context) -> None:
-        for resp in command_responses:
-            await ctx.send(resp)
-
-
-for keyword, channels, responses in settings.EASY_MESSAGES:
-    make_easy_command(keyword, channels, responses)
-
-
-@bot.command()
-async def lmgtfy(ctx: Context) -> None:
-    message = ctx.message
-    chan = message.channel
-    if message.reference is not None and message.reference.message_id is not None:
-        # use message being replied to
-        original = await chan.fetch_message(id=message.reference.message_id)
-    else:
-        # use message immediately before this one
-        original = await chan.history(
-            limit=1, before=message, oldest_first=False
-        ).next()
-
-    query = urlencode({"q": original.content})
-    await original.reply(f"https://lmgtfy.app/?{query}")
 
 
 @bot.command()

@@ -4,7 +4,7 @@ from django.db import migrations
 def forwards_func(apps, schema_editor):
     GamUser = apps.get_model("chatbot", "GamUser")
     DiscordUser = apps.get_model("discord_bot", "DiscordUser")
-    Account = apps.get_model("gam_coins", "CoinCount")
+    Account = apps.get_model("gam_coins", "Account")
 
     for user in GamUser.objects.all():
         discord_user, _ = DiscordUser.objects.get_or_create(discord_id=user.discord_id)

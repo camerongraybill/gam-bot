@@ -1,4 +1,6 @@
-from typing import Optional, Sequence, TYPE_CHECKING
+from __future__ import annotations
+
+from typing import Optional, Sequence, TYPE_CHECKING, Any
 
 from discord.ext import commands
 from discord.ext.commands import Context
@@ -12,10 +14,10 @@ if TYPE_CHECKING:
 
 
 class EasyCog(BaseCog):
-    def __new__(cls, *args, **kwargs):
+    def __new__(cls) -> Any:
         for cmd in settings.COMMANDS:
             cls.__cog_commands__.append(build_command(*cmd))
-        return super().__new__(cls, *args, **kwargs)
+        return super().__new__(cls)
 
 
 def build_command(

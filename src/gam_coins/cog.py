@@ -34,13 +34,12 @@ class SocialScoreCog(BaseCog):
             f"Prediction '{prediction_text}' has been created, reply to this message with the wager command:\n!make_wager <choice> <amount>\npossible choices are {options}"
         )
         prediction_options = options.split(",")
-        prediction_model = await Prediction.async_qs().async_create(thread_id=thread_message.id, prediction_text=prediction_text)
+        prediction_model = await Prediction.async_qs().async_create(
+            thread_id=thread_message.id, prediction_text=prediction_text
+        )
         await PredictionChoice.async_qs().async_bulk_create(
             [
-                PredictionChoice(
-                    prediction=prediction_model,
-                    choice=option.lower()
-                )
+                PredictionChoice(prediction=prediction_model, choice=option.lower())
                 for option in prediction_options
             ]
         )
@@ -257,8 +256,6 @@ class SocialScoreCog(BaseCog):
 
     @commands.command()
     async def check_balance(self, ctx: Context) -> None:
-        account = await Account.objects.lookup_account(
-            discord_id=ctx.message.author.id
-        )
+        account = await Account.objects.lookup_account(discord_id=ctx.message.author.id)
         dm_channel = ctx.author.dm_channel or await ctx.author.create_dm()
         await dm_channel.send(f"Your GamCoin balance is {account.coins} coins.")

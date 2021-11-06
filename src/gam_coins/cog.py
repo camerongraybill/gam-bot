@@ -31,7 +31,7 @@ class GamCoinsCog(BaseCog):
         if not options:
             options = "yes,no"
         thread_message = await ctx.send(
-            f"Prediction '{prediction_text}' has been created, reply to this message with the wager command:\n!make_wager <choice> <amount>\npossible choices are {options}"
+            f"Prediction '{prediction_text}' has been created, reply to this message with the wager command:\n{self.bot.command_prefix}make_wager <choice> <amount>\npossible choices are {options}"
         )
         prediction_options = options.split(",")
         prediction_model = await Prediction.async_qs().async_create(
@@ -168,6 +168,7 @@ class GamCoinsCog(BaseCog):
                     .prefetch_related(
                         "predictionchoice_set",
                         "predictionchoice_set__wager_set__account",
+                        "predictionchoice_set__wager_set__account__user",
                     )
                     .async_get(thread_id=ctx.message.reference.message_id)
                 )
@@ -203,7 +204,7 @@ class GamCoinsCog(BaseCog):
             )
             pot = sum([wager.amount for wager in wagers])
             # Get all wagers associated with the correct choice and sort
-            discord_id_lambda = lambda wager: wager.account.discord_id
+            discord_id_lambda = lambda wager: wager.account.user.discord_id
             correct_wagers = sorted(
                 [
                     wager

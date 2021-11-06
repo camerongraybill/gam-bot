@@ -13,8 +13,7 @@ _T = TypeVar("_T", bound="Account")
 # pylint: disable=inherit-non-class
 class AccountManager(AsyncEnabledManager[_T]):
     async def lookup_account(self, discord_id: int) -> _T:
-        return (
-            await self.async_get_or_create(
-                user=await DiscordUser.objects.lookup_user(discord_id)
-            )
-        )[0]
+        u = await DiscordUser.objects.lookup_user(discord_id)
+        account, _ = await self.async_get_or_create(user=u)
+        account.user = u
+        return account

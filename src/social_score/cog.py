@@ -1,4 +1,5 @@
 from logging import getLogger
+from typing import Union
 
 from discord import RawReactionActionEvent, TextChannel, GroupChannel, PartialEmoji
 from discord.ext import commands
@@ -59,7 +60,7 @@ class SocialScoreCog(BaseCog):
     @is_in_channel({"bot-commands"})
     # pylint: disable=no-self-use
     async def register_score(
-        self, ctx: Context, emoji: PartialEmoji | str, score: int
+        self, ctx: Context, emoji: Union[PartialEmoji, str], score: int
     ) -> None:
         if isinstance(emoji, PartialEmoji):
             emoji_id = str(emoji.id)

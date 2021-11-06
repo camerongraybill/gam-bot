@@ -7,7 +7,7 @@ from pkg_resources import get_distribution
 EASY_MESSAGES: Sequence[tuple[str, Optional[set[str]], Sequence[str]]] = (
     (
         "assemble",
-        {"heroes-guild", "general"},
+        {"heroes-guild"},
         (
             "<@&471829212626681866> Assemble!",
             "https://www.camerongraybill.dev/assemble.jpg",
@@ -37,4 +37,4 @@ DISCORD_COGS = [
 
 DISCORD_KEY = getenv("DISCORD_KEY", None)
 
-DISCORD_COMMAND_PREFIX = "!"
+DISCORD_COMMAND_PREFIX = getenv("DISCORD_COMMAND_PREFIX", "!")

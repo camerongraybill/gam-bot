@@ -61,7 +61,7 @@ class GamCoinsCog(BaseCog):
 
             try:
                 prediction = await Prediction.objects.async_get(thread_id=thread_id)
-                if not prediction.open:
+                if prediction.state != Prediction.State.ACCEPTING_WAGERS:
                     logger.info(
                         "User tried wagering on closed prediction thread_id %d",
                         thread_id,
@@ -107,7 +107,15 @@ class GamCoinsCog(BaseCog):
             thread_id = ctx.message.reference.message_id
             try:
                 prediction = await Prediction.objects.async_get(thread_id=thread_id)
-                prediction.open = False
+                if prediction.state != Prediction.State.ACCEPTING_WAGERS:
+                    logger.info(
+                        "User tried to close prediction thread_id %d but it has been closed already",
+                        thread_id,
+                    )
+                    await ctx.message.add_reaction(settings.ERROR_REACTION)
+                    return
+
+                prediction.state = Prediction.State.WAITING_FOR_RESOLUTION
                 await prediction.async_save()
                 await ctx.message.add_reaction(settings.SUCCESS_REACTION)
             except Prediction.DoesNotExist:
@@ -135,6 +143,13 @@ class GamCoinsCog(BaseCog):
             thread_id = ctx.message.reference.message_id
             try:
                 prediction = await Prediction.objects.async_get(thread_id=thread_id)
+                if prediction.state == Prediction.State.RESOLVED:
+                    logger.info(
+                        "User tried cancelling prediction on thread id %d which has already been resolved",
+                        thread_id,
+                    )
+                    await ctx.message.add_reaction(settings.ERROR_REACTION)
+
                 async for wager in Wager.objects.select_related("account").filter(choice__prediction=prediction):  # type: ignore
                     # Refund user their wager size
                     account = wager.account
@@ -180,6 +195,14 @@ class GamCoinsCog(BaseCog):
                 )
                 await ctx.message.add_reaction(settings.ERROR_REACTION)
                 return
+            if prediction.state == Prediction.State.RESOLVED:
+                logger.info(
+                    "User tried to resolve a prediction that has already been resolved on thread %d",
+                    ctx.message.reference.message_id,
+                )
+                await ctx.message.add_reaction(settings.ERROR_REACTION)
+                return
+
             correct_prediction_choice = next(
                 (
                     x
@@ -231,6 +254,8 @@ class GamCoinsCog(BaseCog):
                 discord_user = await self.bot.fetch_user(discord_id)
                 winner_strings.append(f"{discord_user.name} won {coins_to_award} coins")
                 await account.async_save()
+            prediction.state = Prediction.State.RESOLVED
+            await prediction.async_save()
             await ctx.message.reply(f"{', '.join(winner_strings)}!")
         else:
             logger.info(

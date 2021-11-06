@@ -8,15 +8,14 @@ from discord_bot.checks import is_in_channel
 from . import settings
 
 if TYPE_CHECKING:
-    from discord.ext.commands import Bot, Command
+    from discord.ext.commands import Command
 
 
 class EasyCog(BaseCog):
-    def __init__(self, bot: "Bot[Context]") -> None:
+    def __new__(cls, *args, **kwargs):
         for cmd in settings.COMMANDS:
-            setattr(self, cmd[0], build_command(*cmd))
-
-        super().__init__(bot)
+            cls.__cog_commands__.append(build_command(*cmd))
+        return super().__new__(cls, *args, **kwargs)
 
 
 def build_command(

@@ -42,3 +42,4 @@ USER run:users
 # Configure environment to run
 ENV PATH=/venv/bin:$PATH
 ENV DJANGO_SETTINGS_MODULE=gam.settings.deployment
+ENTRYPOINT manage migrate && manage run_discord_bot

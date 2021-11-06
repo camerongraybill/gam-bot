@@ -14,11 +14,17 @@ class Account(models.Model, AsyncModelMixin):
 
 
 class Prediction(models.Model, AsyncModelMixin):
+    class State(models.IntegerChoices):
+        ACCEPTING_WAGERS = 1
+        WAITING_FOR_RESOLUTION = 2
+        RESOLVED = 3
+
     prediction_text = models.TextField()
     thread_id = models.BigIntegerField(
         primary_key=True
     )  # This is the ID of the message the bot sends that replies should go to
     open = models.BooleanField(default=True)  # True if wagers can be placed
+    state = models.IntegerField(choices=State.choices, default=State.ACCEPTING_WAGERS)
 
     objects = AsyncEnabledManager["Prediction"]()
 

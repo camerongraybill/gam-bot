@@ -4,7 +4,7 @@ from typing import TypeVar, TYPE_CHECKING, AsyncIterable, Iterable, Sequence
 from django.db.models import Model
 from django.db.models.manager import BaseManager
 
-from chatbot.querysets import AsyncEnabledQuerySet
+from .querysets import AsyncEnabledQuerySet
 
 _T = TypeVar("_T", bound=Model, covariant=True)
 

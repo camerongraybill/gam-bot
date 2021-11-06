@@ -1,6 +1,6 @@
 from django.contrib import admin
-from .models import GamUser
+from .models import DiscordUser
 
 # Register your models here.
 
-admin.register(GamUser)
+admin.register(DiscordUser)

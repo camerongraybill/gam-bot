@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Collection
 from discord.channel import DMChannel
 from discord.ext import commands
 from discord.ext.commands.context import Context
@@ -12,7 +12,7 @@ if TYPE_CHECKING:
 
 
 def is_in_channel(
-    command_channels: Optional[set[str]],
+    command_channels: Collection[str],
 ) -> "_CheckDecorator":
     @commands.check
     async def predicate(ctx: Context) -> bool:
@@ -23,7 +23,7 @@ def is_in_channel(
     return predicate
 
 
-def is_local_command() -> "_CheckDecorator":
+def only_debug() -> "_CheckDecorator":
     @commands.check
     # pylint: disable=unused-argument
     async def predicate(ctx: Context) -> bool:

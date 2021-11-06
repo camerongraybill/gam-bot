@@ -2,20 +2,21 @@ from django.db import models
 
 from async_helpers.managers import AsyncEnabledManager
 from async_helpers.mixins import AsyncModelMixin
+from discord_bot.models import DiscordUser
+from .managers import AccountManager
 
 
-class GamUser(models.Model, AsyncModelMixin):
-    discord_id = models.BigIntegerField(primary_key=True)
-    gam_coins = models.PositiveIntegerField(default=0)
-    social_score = models.IntegerField(default=0)
+class Account(models.Model, AsyncModelMixin):
+    user = models.OneToOneField(DiscordUser, primary_key=True, on_delete=models.CASCADE)
+    coins = models.PositiveIntegerField(default=0)
 
-    objects = AsyncEnabledManager["GamUser"]()
+    objects = AccountManager["Account"]()
 
 
 class Prediction(models.Model, AsyncModelMixin):
     prediction_text = models.TextField()
     thread_id = models.BigIntegerField(
-        null=True
+        primary_key=True
     )  # This is the ID of the message the bot sends that replies should go to
     open = models.BooleanField(default=True)  # True if wagers can be placed
 
@@ -28,21 +29,17 @@ class PredictionChoice(models.Model, AsyncModelMixin):
 
     objects = AsyncEnabledManager["PredictionChoice"]()
 
+    class Meta:
+        unique_together = ("prediction", "choice")
+
 
 class Wager(models.Model, AsyncModelMixin):
-    user = models.ForeignKey(
-        GamUser, on_delete=models.CASCADE
+    account = models.ForeignKey(
+        Account, on_delete=models.CASCADE
     )  # Person who made the wager
-    amount = models.IntegerField()  # Amount they're wagering
+    amount = models.PositiveIntegerField()  # Amount they're wagering
     choice = models.ForeignKey(
         PredictionChoice, on_delete=models.CASCADE
     )  # Choice they're wagering on
 
     objects = AsyncEnabledManager["Wager"]()
-
-
-class EmojiScore(models.Model, AsyncModelMixin):
-    emoji_id = models.TextField()
-    score = models.IntegerField(default=0)
-
-    objects = AsyncEnabledManager["EmojiScore"]()

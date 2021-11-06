@@ -3,7 +3,7 @@ from .models import Account, Prediction, PredictionChoice, Wager
 
 # Register your models here.
 
-admin.register(Account)
-admin.register(Prediction)
-admin.register(PredictionChoice)
-admin.register(Wager)
+admin.site.register(Account)
+admin.site.register(Prediction)
+admin.site.register(PredictionChoice)
+admin.site.register(Wager)

@@ -12,6 +12,9 @@ class Account(models.Model, AsyncModelMixin):
 
     objects = AccountManager["Account"]()
 
+    def __str__(self) -> str:
+        return f"{self.user}'s Account"
+
 
 class Prediction(models.Model, AsyncModelMixin):
     class State(models.IntegerChoices):
@@ -19,7 +22,7 @@ class Prediction(models.Model, AsyncModelMixin):
         WAITING_FOR_RESOLUTION = 2
         RESOLVED = 3
 
-    prediction_text = models.TextField()
+    prediction_text = models.TextField(blank=False, null=False)
     thread_id = models.BigIntegerField(
         primary_key=True
     )  # This is the ID of the message the bot sends that replies should go to
@@ -27,15 +30,23 @@ class Prediction(models.Model, AsyncModelMixin):
 
     objects = AsyncEnabledManager["Prediction"]()
 
+    def __str__(self) -> str:
+        return self.prediction_text
+
 
 class PredictionChoice(models.Model, AsyncModelMixin):
     prediction = models.ForeignKey(Prediction, on_delete=models.CASCADE)
-    choice = models.TextField()
+    choice = models.TextField(blank=False, null=False)
 
     objects = AsyncEnabledManager["PredictionChoice"]()
 
     class Meta:
         unique_together = ("prediction", "choice")
+
+    def __str__(self) -> str:
+        return (
+            f"Option '{self.choice}' of prediction '{self.prediction.prediction_text}'"
+        )
 
 
 class Wager(models.Model, AsyncModelMixin):
@@ -48,3 +59,6 @@ class Wager(models.Model, AsyncModelMixin):
     )  # Choice they're wagering on
 
     objects = AsyncEnabledManager["Wager"]()
+
+    def __str__(self) -> str:
+        return f"{self.account.user} wagered {self.amount} on {self.choice}"

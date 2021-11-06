@@ -3,5 +3,5 @@ from .models import SocialScore, EmojiScore
 
 # Register your models here.
 
-admin.register(SocialScore)
-admin.register(EmojiScore)
+admin.site.register(SocialScore)
+admin.site.register(EmojiScore)

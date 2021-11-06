@@ -11,9 +11,15 @@ class EmojiScore(models.Model, AsyncModelMixin):
 
     objects = AsyncEnabledManager["EmojiScore"]()
 
+    def __str__(self) -> str:
+        return f"{self.emoji_id} score is {self.score}"
+
 
 class SocialScore(models.Model, AsyncModelMixin):
     user = models.OneToOneField(DiscordUser, on_delete=models.CASCADE, primary_key=True)
     score = models.IntegerField(default=0)
 
     objects = AsyncEnabledManager["SocialScore"]()
+
+    def __str__(self) -> str:
+        return f"{self.user}'s Social Score is {self.score}"

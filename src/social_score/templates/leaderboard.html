@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Social Scores</title>
+</head>
+<body>
+<table>
+    <tr>
+        <th>Name</th>
+        <th>Count</th>
+    </tr>
+    {% for score in scores %}
+        <tr>
+        <td>{{ score.user }}</td>
+        <td>{{ score.score }}</td>
+        </tr>
+    {% endfor %}
+
+</table>
+</body>
+</html>

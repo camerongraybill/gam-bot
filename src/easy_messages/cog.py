@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import Optional, Sequence, TYPE_CHECKING, Any
 
 from discord.ext import commands
-from discord.ext.commands import Context
+from discord.ext.commands import Context, Bot
 
 from discord_bot.cog import BaseCog
 from discord_bot.checks import is_in_channel
@@ -14,10 +14,10 @@ if TYPE_CHECKING:
 
 
 class EasyCog(BaseCog):
-    def __new__(cls) -> Any:
+    def __new__(cls, bot: Bot['Context']) -> Any:
         for cmd in settings.COMMANDS:
             cls.__cog_commands__.append(build_command(*cmd))
-        return super().__new__(cls)
+        return super().__new__(cls, bot)
 
 
 def build_command(

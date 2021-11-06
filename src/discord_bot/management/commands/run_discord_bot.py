@@ -12,7 +12,7 @@ class Command(BaseCommand):
         parser.add_argument(
             "--discord-key",
             type=str,
-            required=True,
+            required=settings.KEY is None,
             default=settings.KEY,
         )
 

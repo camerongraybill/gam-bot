@@ -18,7 +18,7 @@ logger = getLogger(__name__)
 
 
 # pylint: disable=no-self-use
-class SocialScoreCog(BaseCog):
+class GamCoinsCog(BaseCog):
     def __init__(self, bot: "Bot[Context]") -> None:
         super().__init__(bot)
         # pylint: disable=no-member

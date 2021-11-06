@@ -34,6 +34,7 @@ DISCORD_COGS = [
     "social_score.cog.SocialScoreCog",
     "gam_coins.cog.GamCoinsCog",
     "discord_bot.cog.UserTrackingCog",
+    "dev_utils.cog.DevUtilsCog",
 ]
 
 DISCORD_KEY = getenv("DISCORD_KEY", None)

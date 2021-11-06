@@ -8,6 +8,12 @@ packages = [
         {include="chatbot", from="src"},
         {include="manage.py", from="src"},
         {include="gam", from="src"},
+        {include="async_helpers", from="src"},
+        {include="discord_bot", from="src"},
+        {include="easy_messages", from="src"},
+        {include="gam_coins", from="src"},
+        {include="lmgtfy", from="src"},
+        {include="social_score", from="src"},
     ]
 
 [tool.poetry.scripts]

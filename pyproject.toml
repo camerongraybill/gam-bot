@@ -5,7 +5,6 @@ description = "A fun discord bot for my discord server"
 authors = ["Cameron Graybill <camerongraybill@gmail.com>"]
 license = "MIT"
 packages = [
-        {include="chatbot", from="src"},
         {include="manage.py", from="src"},
         {include="gam", from="src"},
         {include="async_helpers", from="src"},

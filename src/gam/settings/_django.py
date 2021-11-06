@@ -33,7 +33,6 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    "chatbot",
     "discord_bot",
     "social_score",
     "gam_coins",

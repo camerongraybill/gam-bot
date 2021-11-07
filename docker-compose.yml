@@ -43,6 +43,7 @@ services:
       - SECRET_KEY
       - DEBUG
       - STATIC_ROOT=/static_files
+      - ALLOWED_HOST
     depends_on:
       - migrate
   migrate:
@@ -59,6 +60,7 @@ services:
       - SECRET_KEY
       - DEBUG
       - STATIC_ROOT=/static_files
+      - ALLOWED_HOST
     depends_on:
       - db
     restart: on-failure
@@ -76,6 +78,7 @@ services:
       - SECRET_KEY
       - DEBUG
       - STATIC_ROOT=/static_files
+      - ALLOWED_HOST
     depends_on:
       - migrate
     restart: on-failure

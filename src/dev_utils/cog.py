@@ -9,7 +9,7 @@ from pkg_resources import get_distribution
 
 # pylint: disable=no-self-use
 class DevUtilsCog(BaseCog):
-    @commands.command()
+    @commands.command(help="Subscribe to getting a DM when the bot starts up")
     async def subscribe_to_deploy(self, ctx: Context) -> None:
         user, _ = await DiscordUser.async_qs().async_get_or_create(
             discord_id=ctx.message.author.id
@@ -17,7 +17,7 @@ class DevUtilsCog(BaseCog):
         user.notify_on_startup = True
         await user.async_save()
 
-    @commands.command()
+    @commands.command(help="Unsubscribe from getting a DM when the bot starts up")
     async def unsubscribe_to_deploy(self, ctx: Context) -> None:
         user, _ = await DiscordUser.async_qs().async_get_or_create(
             discord_id=ctx.message.author.id

@@ -24,7 +24,7 @@ class GamCoinsCog(BaseCog):
         # pylint: disable=no-member
         self.check_user_presence.start()
 
-    @commands.command()
+    @commands.command(help="Create a new prediction people can wager on")
     async def make_prediction(
         self, ctx: Context, prediction_text: str, options: Optional[str]
     ) -> None:
@@ -44,11 +44,13 @@ class GamCoinsCog(BaseCog):
             ]
         )
 
-    @commands.command()
+    @commands.command(help="Special command for making a wager with all your GamCoins")
     async def all_in(self, ctx: Context, choice: str) -> None:
         await self.handle_wager(ctx, choice, -1, True)
 
-    @commands.command()
+    @commands.command(
+        help="Reply to a prediction message from the bot to make your wager"
+    )
     async def make_wager(self, ctx: Context, choice: str, amount: int) -> None:
         await self.handle_wager(ctx, choice, amount, False)
 
@@ -121,7 +123,9 @@ class GamCoinsCog(BaseCog):
         else:
             logger.info("User tried to wager without replying to a prediction thread.")
 
-    @commands.command()
+    @commands.command(
+        help="Reply to a prediction message from the bot to prevent new wagers from being placed"
+    )
     async def close(self, ctx: Context) -> None:
         if ctx.message.reference:
             thread_id = ctx.message.reference.message_id
@@ -157,7 +161,9 @@ class GamCoinsCog(BaseCog):
         account.coins += amount
         await account.async_save()
 
-    @commands.command()
+    @commands.command(
+        help="Reply to a prediction message from the bot to cancel all wagers currently placed"
+    )
     async def cancel_prediction(self, ctx: Context) -> None:
         if ctx.message.reference:
             thread_id = ctx.message.reference.message_id
@@ -191,7 +197,9 @@ class GamCoinsCog(BaseCog):
                 "User tried to cancel prediction without replying to a prediction thread."
             )
 
-    @commands.command()
+    @commands.command(
+        help="Reply to a prediction message from the bot with the actual outcome to pay out the winnings"
+    )
     async def resolve(self, ctx: Context, correct_choice: str) -> None:
         # pylint: disable=too-many-locals
         # Resolves a prediction thread by getting all users that made the correct choice
@@ -300,7 +308,7 @@ class GamCoinsCog(BaseCog):
         logger.info("Waiting for bot to start before checking user presence")
         await self.bot.wait_until_ready()
 
-    @commands.command()
+    @commands.command(help="Get a DM from the bot with your GamCoin balance")
     async def check_balance(self, ctx: Context) -> None:
         account = await Account.objects.lookup_account(discord_id=ctx.message.author.id)
         dm_channel = ctx.author.dm_channel or await ctx.author.create_dm()

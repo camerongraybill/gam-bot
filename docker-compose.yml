@@ -12,7 +12,7 @@ services:
     image: $BOT_IMAGE:$BOT_TAG
     ports:
       - "$HTTP_PORT:8000"
-    entrypoint: "/bin/bash -c 'manage collectstatic && manage runserver 0.0.0.0:8000'"
+    entrypoint: "/bin/bash -c 'manage collectstatic --noinput && manage runserver 0.0.0.0:8000'"
     environment:
       - DB_PASSWORD=$POSTGRES_PASSWORD
       - DB_USER=$POSTGRES_USER
@@ -40,7 +40,7 @@ services:
       - migrate
   migrate:
     image: $BOT_IMAGE:$BOT_TAG
-    entrypoint: "manage migrate"
+    entrypoint: "manage migrate --no-input"
     environment:
       - DB_PASSWORD=$POSTGRES_PASSWORD
       - DB_USER=$POSTGRES_USER

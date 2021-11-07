@@ -3,7 +3,7 @@ services:
     image: postgres
     restart: always
     volumes:
-      - ${DATA_MOUNT}:/var/lib/postgresql/data
+      - ${DATA_MOUNT}/pgdata:/var/lib/postgresql/data
     environment:
       - POSTGRES_PASSWORD
       - POSTGRES_USER
@@ -12,7 +12,9 @@ services:
     image: $BOT_IMAGE:$BOT_TAG
     ports:
       - "$HTTP_PORT:8000"
-    entrypoint: "/bin/bash -c 'manage collectstatic --noinput && manage runserver 0.0.0.0:8000'"
+    entrypoint: "manage runserver 0.0.0.0:8000"
+    volumes:
+      - ${DATA_MOUNT}/static_files:/static_files
     environment:
       - DB_PASSWORD=$POSTGRES_PASSWORD
       - DB_USER=$POSTGRES_USER
@@ -21,6 +23,7 @@ services:
       - DB_HOST=db
       - SECRET_KEY
       - DEBUG
+      - STATIC_ROOT=/static_files
     depends_on:
       - migrate
   bot:
@@ -36,6 +39,7 @@ services:
       - DISCORD_COMMAND_PREFIX
       - SECRET_KEY
       - DEBUG
+      - STATIC_ROOT=/static_files
     depends_on:
       - migrate
   migrate:
@@ -49,6 +53,24 @@ services:
       - DB_HOST=db
       - SECRET_KEY
       - DEBUG
+      - STATIC_ROOT=/static_files
     depends_on:
       - db
     restart: on-failure
+  collectstatic:
+    image: $BOT_IMAGE:$BOT_TAG
+    entrypoint: "manage collectstatic --no-input"
+    environment:
+      - DB_PASSWORD=$POSTGRES_PASSWORD
+      - DB_USER=$POSTGRES_USER
+      - DB_NAME=$POSTGRES_DB
+      - DB_PORT=5432
+      - DB_HOST=db
+      - SECRET_KEY
+      - DEBUG
+      - STATIC_ROOT=/static_files
+    depends_on:
+      - migrate
+    restart: on-failure
+    volumes:
+      - ${DATA_MOUNT}/static_files:/static_files

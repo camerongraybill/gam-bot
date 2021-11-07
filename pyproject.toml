@@ -13,6 +13,7 @@ packages = [
         {include="gam_coins", from="src"},
         {include="lmgtfy", from="src"},
         {include="social_score", from="src"},
+        {include="dev_utils", from="src"},
     ]
 
 [tool.poetry.scripts]

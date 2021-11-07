@@ -25,7 +25,7 @@ services:
       - DEBUG
       - STATIC_ROOT=/static_files
     depends_on:
-      - migrate
+      - collectstatic
   bot:
     image: $BOT_IMAGE:$BOT_TAG
     entrypoint: "manage run_discord_bot"

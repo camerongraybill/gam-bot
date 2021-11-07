@@ -12,7 +12,7 @@ services:
     image: $BOT_IMAGE:$BOT_TAG
     ports:
       - "$HTTP_PORT:8000"
-    entrypoint: "/bin/bash -c 'manage migrate && manage collectstatic && manage runserver 0.0.0.0:8000'"
+    entrypoint: "/bin/bash -c 'manage collectstatic && manage runserver 0.0.0.0:8000'"
     environment:
       - DB_PASSWORD=$POSTGRES_PASSWORD
       - DB_USER=$POSTGRES_USER
@@ -22,10 +22,10 @@ services:
       - SECRET_KEY
       - DEBUG
     depends_on:
-      - db
+      - migrate
   bot:
     image: $BOT_IMAGE:$BOT_TAG
-    entrypoint: "/bin/bash -c 'manage migrate && manage run_discord_bot'"
+    entrypoint: "manage run_discord_bot"
     environment:
       - DB_PASSWORD=$POSTGRES_PASSWORD
       - DB_USER=$POSTGRES_USER
@@ -37,4 +37,18 @@ services:
       - SECRET_KEY
       - DEBUG
     depends_on:
+      - migrate
+  migrate:
+    image: $BOT_IMAGE:$BOT_TAG
+    entrypoint: "manage migrate"
+    environment:
+      - DB_PASSWORD=$POSTGRES_PASSWORD
+      - DB_USER=$POSTGRES_USER
+      - DB_NAME=$POSTGRES_DB
+      - DB_PORT=5432
+      - DB_HOST=db
+      - SECRET_KEY
+      - DEBUG
+    depends_on:
       - db
+    restart: on-failure

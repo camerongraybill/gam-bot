@@ -1,0 +1,80 @@
+services:
+  db:
+    image: postgres
+    restart: always
+    volumes:
+      - ${DATA_MOUNT}/pgdata:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_PASSWORD
+      - POSTGRES_USER
+      - POSTGRES_DB
+  web:
+    image: $BOT_IMAGE:$BOT_TAG
+    ports:
+      - "$HTTP_PORT:8000"
+    entrypoint: "manage runserver 0.0.0.0:8000"
+    volumes:
+      - ${DATA_MOUNT}/static_files:/static_files
+    environment:
+      - DB_PASSWORD=$POSTGRES_PASSWORD
+      - DB_USER=$POSTGRES_USER
+      - DB_NAME=$POSTGRES_DB
+      - DB_PORT=5432
+      - DB_HOST=db
+      - SECRET_KEY
+      - DEBUG
+      - STATIC_ROOT=/static_files
+    depends_on:
+      - collectstatic
+  bot:
+    image: $BOT_IMAGE:$BOT_TAG
+    entrypoint: "manage run_discord_bot"
+    volumes:
+      - ${DATA_MOUNT}/static_files:/static_files
+    environment:
+      - DB_PASSWORD=$POSTGRES_PASSWORD
+      - DB_USER=$POSTGRES_USER
+      - DB_NAME=$POSTGRES_DB
+      - DB_PORT=5432
+      - DB_HOST=db
+      - DISCORD_KEY
+      - DISCORD_COMMAND_PREFIX
+      - SECRET_KEY
+      - DEBUG
+      - STATIC_ROOT=/static_files
+    depends_on:
+      - migrate
+  migrate:
+    image: $BOT_IMAGE:$BOT_TAG
+    entrypoint: "manage migrate --no-input"
+    volumes:
+      - ${DATA_MOUNT}/static_files:/static_files
+    environment:
+      - DB_PASSWORD=$POSTGRES_PASSWORD
+      - DB_USER=$POSTGRES_USER
+      - DB_NAME=$POSTGRES_DB
+      - DB_PORT=5432
+      - DB_HOST=db
+      - SECRET_KEY
+      - DEBUG
+      - STATIC_ROOT=/static_files
+    depends_on:
+      - db
+    restart: on-failure
+  collectstatic:
+    image: $BOT_IMAGE:$BOT_TAG
+    entrypoint: "manage collectstatic --no-input"
+    volumes:
+      - ${DATA_MOUNT}/static_files:/static_files
+    environment:
+      - DB_PASSWORD=$POSTGRES_PASSWORD
+      - DB_USER=$POSTGRES_USER
+      - DB_NAME=$POSTGRES_DB
+      - DB_PORT=5432
+      - DB_HOST=db
+      - SECRET_KEY
+      - DEBUG
+      - STATIC_ROOT=/static_files
+    depends_on:
+      - migrate
+    restart: on-failure

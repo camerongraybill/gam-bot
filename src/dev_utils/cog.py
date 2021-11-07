@@ -7,6 +7,7 @@ from discord_bot.models import DiscordUser
 from pkg_resources import get_distribution
 
 
+# pylint: disable=no-self-use
 class DevUtilsCog(BaseCog):
     @commands.command()
     async def subscribe_to_deploy(self, ctx: Context) -> None:

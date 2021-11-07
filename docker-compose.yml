@@ -18,9 +18,11 @@ services:
       - DB_USER=$POSTGRES_USER
       - DB_NAME=$POSTGRES_DB
       - DB_PORT=5432
-      - DB_HOST=postgres
+      - DB_HOST=db
       - SECRET_KEY
       - DEBUG
+    depends_on:
+      - db
   bot:
     image: $BOT_IMAGE:$BOT_TAG
     entrypoint: "/bin/bash -c 'manage migrate && manage run_discord_bot'"
@@ -29,8 +31,10 @@ services:
       - DB_USER=$POSTGRES_USER
       - DB_NAME=$POSTGRES_DB
       - DB_PORT=5432
-      - DB_HOST=postgres
+      - DB_HOST=db
       - DISCORD_KEY
       - DISCORD_COMMAND_PREFIX
       - SECRET_KEY
       - DEBUG
+    depends_on:
+      - db

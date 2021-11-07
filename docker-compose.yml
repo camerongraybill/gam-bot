@@ -24,6 +24,7 @@ services:
       - SECRET_KEY
       - DEBUG
       - STATIC_ROOT=/static_files
+      - ALLOWED_HOST
     depends_on:
       - collectstatic
   bot:

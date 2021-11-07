@@ -20,3 +20,5 @@ DATABASES = {
         "PORT": int(environ["DB_PORT"]),
     }
 }
+
+ALLOWED_HOSTS = [environ["ALLOWED_HOST"]]

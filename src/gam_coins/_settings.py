@@ -21,6 +21,10 @@ class _Settings:
     def INCOME_PER_MINUTE(self) -> int:
         return cast(int, getattr(django_settings, "GAM_COINS_INCOME_PER_MINUTE", 10))
 
+    @cached_property
+    def ALL_IN_REACTION(self) -> str:
+        return cast(str, getattr(django_settings, "GAM_COINS_ALL_IN_REACTION", "🤑"))
+
 
 def get_settings() -> _Settings:
     return _Settings()

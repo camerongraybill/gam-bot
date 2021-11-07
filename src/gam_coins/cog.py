@@ -31,7 +31,7 @@ class GamCoinsCog(BaseCog):
         if not options:
             options = "yes,no"
         thread_message = await ctx.send(
-            f"Prediction '{prediction_text}' has been created, reply to this message with the wager command:\n{self.bot.command_prefix}make_wager <choice> <amount>\npossible choices are {options}"
+            f"Prediction '{prediction_text}' has been created, reply to this message with the wager command:\n{self.bot.command_prefix}make_wager <choice> <amount>\npossible choices are {options}\nOr use {self.bot.command_prefix}all_in <choice> to bet the farm!"
         )
         prediction_options = options.split(",")
         prediction_model = await Prediction.async_qs().async_create(
@@ -45,11 +45,20 @@ class GamCoinsCog(BaseCog):
         )
 
     @commands.command()
+    async def all_in(self, ctx: Context, choice: str) -> None:
+        await self.handle_wager(ctx, choice, -1, True)
+
+    @commands.command()
     async def make_wager(self, ctx: Context, choice: str, amount: int) -> None:
+        await self.handle_wager(ctx, choice, amount, False)
+
+    async def handle_wager(
+        self, ctx: Context, choice: str, amount: int, all_in: bool
+    ) -> None:
         if ctx.message.reference:
             thread_id = ctx.message.reference.message_id
             account = await Account.objects.lookup_account(ctx.message.author.id)
-            if amount > account.coins:
+            if not all_in and amount > account.coins:
                 logger.info(
                     "User %d does not have enough GamCoins to wager (tried wagering %d, only had %d)",
                     account.user.discord_id,
@@ -83,14 +92,25 @@ class GamCoinsCog(BaseCog):
                     choice=choice.lower(), prediction=prediction
                 )
 
-                account.coins -= amount
-                await account.async_save()
+                if all_in:
+                    await Wager.objects.async_create(
+                        account=account, amount=account.coins, choice=prediction_choice
+                    )
 
-                await Wager.objects.async_create(
-                    account=account, amount=amount, choice=prediction_choice
-                )
+                    account.coins = 0
 
-                await ctx.message.add_reaction(settings.SUCCESS_REACTION)
+                    await account.async_save()
+
+                    await ctx.message.add_reaction(settings.ALL_IN_REACTION)
+                else:
+                    account.coins -= amount
+                    await account.async_save()
+
+                    await Wager.objects.async_create(
+                        account=account, amount=amount, choice=prediction_choice
+                    )
+
+                    await ctx.message.add_reaction(settings.SUCCESS_REACTION)
             except PredictionChoice.DoesNotExist:
                 logger.info(
                     "User's provided choice %s did not match any choices available for prediction %d",

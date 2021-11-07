@@ -7,6 +7,7 @@ class DiscordUser(models.Model, AsyncModelMixin):
     discord_id = models.PositiveBigIntegerField(primary_key=True)
     last_known_nickname = models.CharField(blank=False, null=True, max_length=128)
     last_known_account_name = models.CharField(blank=False, null=True, max_length=128)
+    notify_on_startup = models.BooleanField(default=False)
 
     objects = DiscordUserManager["DiscordUser"]()
 

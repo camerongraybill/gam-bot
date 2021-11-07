@@ -12,7 +12,7 @@ services:
     image: $BOT_IMAGE:$BOT_TAG
     ports:
       - "$HTTP_PORT:8000"
-    entrypoint: "manage migrate && manage collectstatic && manage runserver 0.0.0.0:8000"
+    entrypoint: "/bin/bash -c 'manage migrate && manage collectstatic && manage runserver 0.0.0.0:8000'"
     environment:
       - DB_PASSWORD=$POSTGRES_PASSWORD
       - DB_USER=$POSTGRES_USER
@@ -23,7 +23,7 @@ services:
       - DEBUG
   bot:
     image: $BOT_IMAGE:$BOT_TAG
-    entrypoint: "manage migrate && manage run_discord_bot"
+    entrypoint: "/bin/bash -c 'manage migrate && manage run_discord_bot'"
     environment:
       - DB_PASSWORD=$POSTGRES_PASSWORD
       - DB_USER=$POSTGRES_USER
@@ -32,3 +32,5 @@ services:
       - DB_HOST=postgres
       - DISCORD_KEY
       - DISCORD_COMMAND_PREFIX
+      - SECRET_KEY
+      - DEBUG

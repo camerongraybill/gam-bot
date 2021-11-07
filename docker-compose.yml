@@ -29,6 +29,8 @@ services:
   bot:
     image: $BOT_IMAGE:$BOT_TAG
     entrypoint: "manage run_discord_bot"
+    volumes:
+      - ${DATA_MOUNT}/static_files:/static_files
     environment:
       - DB_PASSWORD=$POSTGRES_PASSWORD
       - DB_USER=$POSTGRES_USER
@@ -45,6 +47,8 @@ services:
   migrate:
     image: $BOT_IMAGE:$BOT_TAG
     entrypoint: "manage migrate --no-input"
+    volumes:
+      - ${DATA_MOUNT}/static_files:/static_files
     environment:
       - DB_PASSWORD=$POSTGRES_PASSWORD
       - DB_USER=$POSTGRES_USER
@@ -60,6 +64,8 @@ services:
   collectstatic:
     image: $BOT_IMAGE:$BOT_TAG
     entrypoint: "manage collectstatic --no-input"
+    volumes:
+      - ${DATA_MOUNT}/static_files:/static_files
     environment:
       - DB_PASSWORD=$POSTGRES_PASSWORD
       - DB_USER=$POSTGRES_USER
@@ -72,5 +78,3 @@ services:
     depends_on:
       - migrate
     restart: on-failure
-    volumes:
-      - ${DATA_MOUNT}/static_files:/static_files

@@ -13,8 +13,6 @@ services:
     ports:
       - "$HTTP_PORT:8000"
     entrypoint: "manage runserver 0.0.0.0:8000"
-    volumes:
-      - ${DATA_MOUNT}/static_files:/static_files
     environment:
       - DB_PASSWORD=$POSTGRES_PASSWORD
       - DB_USER=$POSTGRES_USER
@@ -23,15 +21,12 @@ services:
       - DB_HOST=db
       - SECRET_KEY
       - DEBUG
-      - STATIC_ROOT=/static_files
       - ALLOWED_HOST
     depends_on:
       - collectstatic
   bot:
     image: $BOT_IMAGE:$BOT_TAG
     entrypoint: "manage run_discord_bot"
-    volumes:
-      - ${DATA_MOUNT}/static_files:/static_files
     environment:
       - DB_PASSWORD=$POSTGRES_PASSWORD
       - DB_USER=$POSTGRES_USER
@@ -42,15 +37,12 @@ services:
       - DISCORD_COMMAND_PREFIX
       - SECRET_KEY
       - DEBUG
-      - STATIC_ROOT=/static_files
       - ALLOWED_HOST
     depends_on:
       - migrate
   migrate:
     image: $BOT_IMAGE:$BOT_TAG
     entrypoint: "manage migrate --no-input"
-    volumes:
-      - ${DATA_MOUNT}/static_files:/static_files
     environment:
       - DB_PASSWORD=$POSTGRES_PASSWORD
       - DB_USER=$POSTGRES_USER
@@ -59,7 +51,6 @@ services:
       - DB_HOST=db
       - SECRET_KEY
       - DEBUG
-      - STATIC_ROOT=/static_files
       - ALLOWED_HOST
     depends_on:
       - db
@@ -68,7 +59,7 @@ services:
     image: $BOT_IMAGE:$BOT_TAG
     entrypoint: "manage collectstatic --no-input"
     volumes:
-      - ${DATA_MOUNT}/static_files:/static_files
+      - ${DATA_MOUNT}/static:/static_files
     environment:
       - DB_PASSWORD=$POSTGRES_PASSWORD
       - DB_USER=$POSTGRES_USER

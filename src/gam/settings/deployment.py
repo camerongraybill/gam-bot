@@ -7,7 +7,7 @@ from os import environ
 
 DEBUG = environ.get('DEBUG', "false").lower() == "true"
 
-STATIC_ROOT = environ['STATIC_ROOT']
+STATIC_ROOT = environ.get('STATIC_ROOT')
 
 SECRET_KEY = environ["SECRET_KEY"]
 DATABASES = {

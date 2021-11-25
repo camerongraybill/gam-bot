@@ -19,6 +19,11 @@ EASY_MESSAGES: Sequence[tuple[str, Optional[set[str]], Sequence[str]]] = (
         ("https://camerongraybill.dev/thank-you-for-your-service.jpg",),
     ),
     (
+        "turkey_thank",
+        None,
+        ("https://camerongraybill.dev/turkey_thank.png",),
+    ),
+    (
         "doubt",
         None,
         ("https://camerongraybill.dev/doubt.jpg",),

@@ -1,4 +1,4 @@
-from discord import Intents, Game, Activity, ActivityType
+from discord import Intents, Activity, ActivityType
 from discord.ext.commands import Bot
 from pkg_resources import get_distribution
 

@@ -14,6 +14,7 @@ packages = [
         {include="lmgtfy", from="src"},
         {include="social_score", from="src"},
         {include="dev_utils", from="src"},
+        {include="advent_of_code", from="src"},
     ]
 
 [tool.poetry.scripts]

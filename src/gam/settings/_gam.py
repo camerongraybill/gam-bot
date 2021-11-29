@@ -40,8 +40,11 @@ DISCORD_COGS = [
     "gam_coins.cog.GamCoinsCog",
     "discord_bot.cog.UserTrackingCog",
     "dev_utils.cog.DevUtilsCog",
+    "advent_of_code.cog.AdventOfCodeCog",
 ]
 
 DISCORD_KEY = getenv("DISCORD_KEY", None)
 
 DISCORD_COMMAND_PREFIX = getenv("DISCORD_COMMAND_PREFIX", "!")
+
+AOC_SUBSCRIBED_CHANNEL = "cooking-guild"

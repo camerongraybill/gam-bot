@@ -68,7 +68,7 @@ class AdventOfCodeCog(BaseCog):
     async def check_post_for_day(self) -> None:
         now_dt = now()
         today = now_dt.date()
-        if today != self._last_posted_day and now_dt.hour <= 1 and today.month == 12 and today.day <= 25:
+        if today != self._last_posted_day and now_dt.hour == 5 and today.month == 12 and today.day <= 25:
             await self._send_aoc_message(get(self.bot.get_all_channels(), name=settings.SUBSCRIBED_CHANNEL), today)
             self._last_posted_day = today
 

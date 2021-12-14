@@ -27,7 +27,9 @@ class DevUtilsCog(BaseCog):
 
     @commands.command(help="Link to source repository")
     async def source(self, ctx: Context) -> None:
-        await ctx.message.channel.send("My source can be found at: https://github.com/camerongraybill/gam-bot")
+        await ctx.message.channel.send(
+            "My source can be found at: https://github.com/camerongraybill/gam-bot"
+        )
 
     @commands.Cog.listener()
     async def on_ready(self) -> None:

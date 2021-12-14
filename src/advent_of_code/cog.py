@@ -74,7 +74,9 @@ class AdventOfCodeCog(BaseCog):
             and today.month == 12
             and today.day <= 25
         ):
-            if channel := get(self.bot.get_all_channels(), name=settings.SUBSCRIBED_CHANNEL):
+            if channel := get(
+                self.bot.get_all_channels(), name=settings.SUBSCRIBED_CHANNEL
+            ):
                 if isinstance(channel, (TextChannel, DMChannel, GroupChannel)):
                     await self._send_aoc_message(
                         channel,

@@ -29,6 +29,11 @@ EASY_MESSAGES: Sequence[tuple[str, Optional[set[str]], Sequence[str]]] = (
         ("https://camerongraybill.dev/doubt.jpg",),
     ),
     ("version", None, (f"Gam bot version {get_distribution('gam_bot').version}",)),
+    (
+        "assemble2",
+        None,
+        ("https://camerongraybill.dev/losers.png",),
+    ),
 )
 
 # Discord settings

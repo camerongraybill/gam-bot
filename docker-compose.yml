@@ -10,6 +10,7 @@ services:
       - POSTGRES_DB
   web:
     image: $BOT_IMAGE:$BOT_TAG
+    restart: always
     ports:
       - "$HTTP_PORT:8000"
     entrypoint: "manage runserver 0.0.0.0:8000"
@@ -26,6 +27,7 @@ services:
       - collectstatic
   bot:
     image: $BOT_IMAGE:$BOT_TAG
+    restart: always
     entrypoint: "manage run_discord_bot"
     environment:
       - DB_PASSWORD=$POSTGRES_PASSWORD

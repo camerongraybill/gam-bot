@@ -155,15 +155,19 @@ class GamCoinsCog(BaseCog):
                 "User tried to close prediction without replying to a prediction thread."
             )
 
-    @commands.command(
-        help="List all open predictions"
-    )
+    @commands.command(help="List all open predictions")
     async def list_predictions(self, ctx: Context) -> None:
-        predictions = await Prediction.objects.all().filter(~Q(state=Prediction.State.RESOLVED.value)).to_list()
+        predictions = (
+            await Prediction.objects.all()
+            .filter(~Q(state=Prediction.State.RESOLVED.value))
+            .to_list()
+        )
         if not predictions:
             await ctx.send("No predictions are currently available")
         else:
-            await ctx.send("Open predictions:" + "\n" + "\n".join([str(p) for p in predictions]))
+            await ctx.send(
+                "Open predictions:" + "\n" + "\n".join([str(p) for p in predictions])
+            )
 
     @commands.command()
     @only_debug()

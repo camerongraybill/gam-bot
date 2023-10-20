@@ -55,7 +55,6 @@ if TYPE_CHECKING:
         ) -> None:
             ...
 
-
 else:
     _Base = BaseManager.from_queryset(AsyncEnabledQuerySet[_T])
 

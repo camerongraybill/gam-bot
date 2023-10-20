@@ -32,7 +32,10 @@ EASY_MESSAGES: Sequence[tuple[str, Optional[set[str]], Sequence[str]]] = (
     (
         "assemble2",
         None,
-        ("<@&789269532875292683> Assemble!","https://camerongraybill.dev/losers.png",),
+        (
+            "<@&789269532875292683> Assemble!",
+            "https://camerongraybill.dev/losers.png",
+        ),
     ),
 )
 

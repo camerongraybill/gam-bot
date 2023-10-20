@@ -47,7 +47,6 @@ class SocialScoreCog(BaseCog):
                     logger.debug("No emoji score registered for emoji ID %s", emoji_id)
 
     @commands.command(help="Shows your current social score")
-    # pylint: disable=no-self-use
     async def show_score(self, ctx: Context) -> None:
         score: SocialScore = (
             await SocialScore.objects.async_get_or_create(
@@ -58,7 +57,6 @@ class SocialScoreCog(BaseCog):
 
     @commands.command(help="Assigns a new social score value to a given emoji")
     @is_in_channel({"bot-commands"})
-    # pylint: disable=no-self-use
     async def register_score(
         self, ctx: Context, emoji: Union[PartialEmoji, str], score: int
     ) -> None:

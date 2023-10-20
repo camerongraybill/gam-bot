@@ -5,6 +5,7 @@ from typing import Optional, Mapping, TYPE_CHECKING
 from discord.enums import Status
 from discord.ext import commands, tasks
 from discord.ext.commands import Context
+from django.db.models import Q
 
 from discord_bot.checks import only_debug
 from discord_bot.cog import BaseCog
@@ -17,7 +18,6 @@ if TYPE_CHECKING:
 logger = getLogger(__name__)
 
 
-# pylint: disable=no-self-use
 class GamCoinsCog(BaseCog):
     def __init__(self, bot: "Bot[Context]") -> None:
         super().__init__(bot)
@@ -154,6 +154,20 @@ class GamCoinsCog(BaseCog):
                 "User tried to close prediction without replying to a prediction thread."
             )
 
+    @commands.command(help="List all open predictions")
+    async def list_predictions(self, ctx: Context) -> None:
+        predictions = (
+            await Prediction.objects.all()
+            .filter(~Q(state=Prediction.State.RESOLVED.value))
+            .to_list()
+        )
+        if not predictions:
+            await ctx.send("No predictions are currently available")
+        else:
+            await ctx.send(
+                "Open predictions:" + "\n" + "\n".join([str(p) for p in predictions])
+            )
+
     @commands.command()
     @only_debug()
     async def add_coins(self, ctx: Context, amount: int) -> None:
@@ -253,7 +267,7 @@ class GamCoinsCog(BaseCog):
                     x.wager_set.all() for x in prediction.predictionchoice_set.all()
                 )
             )
-            pot = sum([wager.amount for wager in wagers])
+            pot = sum(wager.amount for wager in wagers)
             # Get all wagers associated with the correct choice and sort
             discord_id_lambda = lambda wager: wager.account.user.discord_id
             correct_wagers = sorted(
@@ -265,7 +279,7 @@ class GamCoinsCog(BaseCog):
                 key=discord_id_lambda,
             )
             # Get the sum of correct wagers
-            correct_wagers_pot = sum([wager.amount for wager in correct_wagers])
+            correct_wagers_pot = sum(wager.amount for wager in correct_wagers)
             # We need to map users to the wagers they placed
             users_to_wagers: Mapping[int, list[Wager]] = {
                 k: list(g) for k, g in groupby(correct_wagers, key=discord_id_lambda)
@@ -274,7 +288,7 @@ class GamCoinsCog(BaseCog):
             for discord_id, user_wagers in users_to_wagers.items():
                 account = user_wagers[0].account
                 coins_to_award = int(
-                    (sum([wager.amount for wager in user_wagers]) / correct_wagers_pot)
+                    (sum(wager.amount for wager in user_wagers) / correct_wagers_pot)
                     * pot
                 )
                 logger.info("Awarding %d coins to user %d", coins_to_award, discord_id)

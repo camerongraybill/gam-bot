@@ -10,7 +10,6 @@ class LMGTFYCog(BaseCog):
     @commands.command(
         help="Creates a LMGTFY link for the last message sent or the message you reply to"
     )
-    # pylint: disable=no-self-use
     async def lmgtfy(self, ctx: Context) -> None:
         message = ctx.message
         chan = message.channel

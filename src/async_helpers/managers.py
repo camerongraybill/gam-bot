@@ -1,4 +1,4 @@
-# pylint: disable=no-self-use, unused-argument
+# pylint: disable=unused-argument
 from typing import TypeVar, TYPE_CHECKING, AsyncIterable, Iterable, Sequence
 
 from django.db.models import Model
@@ -54,7 +54,6 @@ if TYPE_CHECKING:
             batch_size: Optional[int] = None,
         ) -> None:
             ...
-
 
 else:
     _Base = BaseManager.from_queryset(AsyncEnabledQuerySet[_T])

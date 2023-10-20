@@ -22,25 +22,28 @@ manage = "manage:main"
 
 [tool.poetry.dependencies]
 python = "^3.10"
-"discord.py" = "^1.7.3"
-Django = "^3.2.8"
-psycopg2 = {version = "^2.9.1", optional = true}
+django = "<4.0.0"
+discord-py = "<1.8.0"
 
-[tool.poetry.extras]
-prod = ["psycopg2"]
+[tool.poetry.group.dev.dependencies]
+black = "<22.0.0"
+mypy = "<1.5.0"
+pylint = "<3"
+bandit = "^1.7.5"
+pytest = "^7.4.2"
+discord-py-stubs = "^1.7.3"
+pytest-django = "^4.5.2"
+django-stubs = "^4.2.5"
+pylint-django = "^2.5.3"
+pytest-asyncio = "^0.21.1"
+psycopg2-binary = "^2.9.9"
 
-[tool.poetry.dev-dependencies]
-black = "^21.9b0"
-mypy = "^0.910"
-pylint = "^2.11.1"
-bandit = "^1.7.0"
-pytest = "^6.2.5"
-types-setuptools = "^57.4.2"
-"discord.py-stubs" = "^1.7.3"
-pytest-django = "^4.4.0"
-django-stubs = "^1.9.0"
-pylint-django = "^2.4.4"
-pytest-asyncio = "^0.16.0"
+
+[tool.poetry.group.release]
+optional = true
+
+[tool.poetry.group.release.dependencies]
+psycopg2 = "^2.9.9"
 
 [build-system]
 requires = ["poetry-core>=1.0.0", "poetry-dynamic-versioning"]

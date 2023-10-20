@@ -20,7 +20,7 @@ jobs:
     - name: Set up environment
       run: |
         pip install poetry
-        poetry install
+        poetry install --with dev --without release
     - name: Running Bandit
       run: poetry run bandit -r ./src
     - name: Running Black

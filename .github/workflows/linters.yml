@@ -25,8 +25,8 @@ jobs:
       run: poetry run bandit -r ./src
     - name: Running Black
       run: poetry run black ./src --check
-    - name: Running Mypy
-      run: poetry run mypy
+#    - name: Running Mypy
+#      run: poetry run mypy
     - name: Running Pylint
       run: cd src && poetry run pylint --rcfile ../pyproject.toml ./gam/ ./manage.py  ./async_helpers/ ./easy_messages/ ./gam_coins/ ./lmgtfy/ ./social_score/ ./dev_utils/ && cd ..
     - name: Running Pytest

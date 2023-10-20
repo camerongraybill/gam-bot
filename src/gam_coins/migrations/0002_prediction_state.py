@@ -2,7 +2,7 @@
 
 from django.db import migrations, models
 
-
+# pylint: disable=unused-argument
 def populate_state_field(apps, schema_editor) -> None:
     Prediction = apps.get_model("gam_coins", "Prediction")
     Prediction.objects.filter(open=False).update(state=3)

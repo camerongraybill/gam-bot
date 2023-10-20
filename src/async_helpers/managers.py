@@ -1,4 +1,4 @@
-# pylint: disable=no-self-use, unused-argument
+# pylint: disable=unused-argument
 from typing import TypeVar, TYPE_CHECKING, AsyncIterable, Iterable, Sequence
 
 from django.db.models import Model

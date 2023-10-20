@@ -5,6 +5,7 @@ from typing import Optional, Mapping, TYPE_CHECKING
 from discord.enums import Status
 from discord.ext import commands, tasks
 from discord.ext.commands import Context
+from django.db.models import Q
 
 from discord_bot.checks import only_debug
 from discord_bot.cog import BaseCog
@@ -153,6 +154,16 @@ class GamCoinsCog(BaseCog):
             logger.info(
                 "User tried to close prediction without replying to a prediction thread."
             )
+
+    @commands.command(
+        help="List all open predictions"
+    )
+    async def list_predictions(self, ctx: Context) -> None:
+        predictions = await Prediction.objects.all().filter(~Q(state=Prediction.State.RESOLVED.value)).to_list()
+        if not predictions:
+            await ctx.send("No predictions are currently available")
+        else:
+            await ctx.send("Open predictions:" + "\n" + "\n".join([str(p) for p in predictions]))
 
     @commands.command()
     @only_debug()

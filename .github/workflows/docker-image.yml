@@ -26,5 +26,5 @@ jobs:
         context: .
         push: false
         tags: ci
-        build-args:
-          APP_VERSION: ${{ steps.version.outputs.APP_VERSION }}
+        build-args: |
+          APP_VERSION=${{ steps.version.outputs.APP_VERSION }}

@@ -19,7 +19,7 @@ jobs:
       run: |
         python -m venv ./venv
         ./venv/bin/pip install dunamai
-        echo "APP_VERSION=$(dunamai from git --style pep440)" >> $GITHUB_OUTPUT 
+        echo "APP_VERSION=$(./venv/bin/dunamai from git --style pep440)" >> $GITHUB_OUTPUT 
 
     - uses: docker/build-push-action@v6
       with:

@@ -1,93 +1,62 @@
 [tool.poetry]
 name = "gam_bot"
-version = "0.0.0"
+version = "v0.0.0"
 description = "A fun discord bot for my discord server"
-authors = ["Cameron Graybill <camerongraybill@gmail.com>"]
+authors = ["Cameron Graybill <camerongraybill@gmail.com>", "Daron Arakelian <daronarakelian@gmail.com>"]
 license = "MIT"
 packages = [
-        {include="manage.py", from="src"},
-        {include="gam", from="src"},
-        {include="async_helpers", from="src"},
-        {include="discord_bot", from="src"},
-        {include="easy_messages", from="src"},
-        {include="gam_coins", from="src"},
-        {include="lmgtfy", from="src"},
-        {include="social_score", from="src"},
-        {include="dev_utils", from="src"},
-        {include="advent_of_code", from="src"},
-    ]
+    { include = "manage.py", from = "src" },
+    { include = "gam", from = "src" },
+    { include = "discord_bot", from = "src" },
+    { include = "easy_messages", from = "src" },
+    { include = "gam_coins", from = "src" },
+    { include = "lmgtfy", from = "src" },
+    { include = "social_score", from = "src" },
+    { include = "dev_utils", from = "src" },
+    { include = "advent_of_code", from = "src" },
+]
 
 [tool.poetry.scripts]
 manage = "manage:main"
 
 [tool.poetry.dependencies]
-python = "^3.10"
-django = "<4.0.0"
-discord-py = "<1.8.0"
+python = "^3.12"
+django = "^5.1.1"
+discord-py = "^2.4.0"
+yarl = "^1.11.1"
 
 [tool.poetry.group.dev.dependencies]
-black = "22.3.0"
-mypy = "<1.2.0"
-pylint = "<3"
-bandit = "^1.7.5"
-pytest = "^7.4.2"
-discord-py-stubs = "^1.7.3"
-pytest-django = "^4.5.2"
-django-stubs = "^4.2.5"
-pylint-django = "^2.5.3"
-pytest-asyncio = "^0.21.1"
-psycopg2-binary = "^2.9.9"
+mypy = "^1.11.2"
+django-stubs = "^5.0.4"
+ruff = "^0.6.5"
+psycopg = { extras = ["binary"], version = "^3.2.1" }
+dunamai = "^1.22.0"
 
 
 [tool.poetry.group.release]
 optional = true
 
 [tool.poetry.group.release.dependencies]
-psycopg2 = "^2.9.9"
+psycopg = { extras = ["c"], version = "^3.2.1" }
+uvloop = "^0.20.0"
 
 [build-system]
-requires = ["poetry-core>=1.0.0", "poetry-dynamic-versioning"]
+requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
 
-[tool.poetry-dynamic-versioning]
-enable = true
-vcs = "git"
-style = "semver"
 
 [tool.mypy]
 files = "src"
 plugins = ["mypy_django_plugin.main"]
-namespace_packages = true
-disallow_any_unimported = true
-disallow_any_expr = false
-disallow_any_decorated = false
-disallow_any_explicit = false
-disallow_any_generics = true
-disallow_subclassing_any = true
-disallow_untyped_calls = true
-disallow_untyped_defs = true
-disallow_incomplete_defs = true
-disallow_untyped_decorators = true
-no_implicit_optional = true
-warn_redundant_casts = true
-warn_unused_ignores = true
-warn_return_any = true
-warn_unreachable = true
-implicit_reexport = false
-strict_equality = true
+strict = true
+enable_incomplete_feature = ["NewGenericSyntax"]
 
 [[tool.mypy.overrides]]
-module = ["*.migrations.*"]
-ignore_errors = true
+module = "uvloop.*"
+ignore_missing_imports = true
 
 [tool.django-stubs]
 django_settings_module = "gam.settings.testing"
 
-[tool.pylint.MASTER]
-disable="C,duplicate-code"
-load-plugins=["pylint_django"]
-django-settings-module="gam.settings.testing"
-
-[tool.pytest.ini_options]
-DJANGO_SETTINGS_MODULE = "gam.settings.testing"
-python_files = ["test*.py"]
+[tool.ruff]
+target-version = "py312"

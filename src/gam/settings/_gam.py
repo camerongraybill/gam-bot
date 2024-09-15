@@ -1,13 +1,12 @@
+from importlib.metadata import version
 from os import getenv
 from typing import Sequence, Optional
-
-from pkg_resources import get_distribution
 
 
 EASY_MESSAGES: Sequence[tuple[str, Optional[set[str]], Sequence[str]]] = (
     (
         "assemble",
-        {"heroes-guild"},
+        {"recruiting-board", "heroes-guild"},
         (
             "<@&471829212626681866> Assemble!",
             "https://www.camerongraybill.dev/assemble.jpg",
@@ -28,7 +27,7 @@ EASY_MESSAGES: Sequence[tuple[str, Optional[set[str]], Sequence[str]]] = (
         None,
         ("https://camerongraybill.dev/doubt.jpg",),
     ),
-    ("version", None, (f"Gam bot version {get_distribution('gam_bot').version}",)),
+    ("version", None, (f"Gam bot version {version('gam_bot')}",)),
     (
         "assemble2",
         None,
@@ -43,7 +42,6 @@ EASY_MESSAGES: Sequence[tuple[str, Optional[set[str]], Sequence[str]]] = (
 
 DISCORD_COGS = [
     "lmgtfy.cog.LMGTFYCog",
-    "easy_messages.cog.EasyCog",
     "social_score.cog.SocialScoreCog",
     "gam_coins.cog.GamCoinsCog",
     "discord_bot.cog.UserTrackingCog",

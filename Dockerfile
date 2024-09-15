@@ -18,7 +18,7 @@ RUN /venv/bin/pip install -U pip
 RUN ./tools_venv/bin/pip install -U pip
 RUN /venv/bin/pip install wheel
 RUN ./tools_venv/bin/pip install wheel poetry==1.8.3
-RUN poetry self add poetry-plugin-export
+RUN ./tools_venv/bin/poetry self add poetry-plugin-export
 
 # Build and install dependencies to the output virtualenv first so we don't have to re-do it when the dependencies do not change
 COPY ./poetry.lock ./poetry.lock

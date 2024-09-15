@@ -1,4 +1,4 @@
-FROM python:3.10 as just-python
+FROM python:3.12 as just-python
 RUN apt-get update
 
 

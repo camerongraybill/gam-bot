@@ -1,8 +1,6 @@
 name: Docker Image CI
 
 on:
-  push:
-    branches: [ main ]
   pull_request:
     branches: [ main ]
 
@@ -14,10 +12,11 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
-    - name: Build the Docker image
-      run: |
-        python3 -m venv ./venv
-        ./venv/bin/pip install poetry==1.6.1 poetry-dynamic-versioning==0.13.1
-        APP_VERSION=$(./venv/bin/poetry version -s)
-        CHECKOUT=$(git rev-parse HEAD)
-        docker build . --file Dockerfile --tag gam-bot:$CHECKOUT
+
+    - uses: docker/setup-buildx-action@v3
+
+    - uses: docker/build-push-action@v6
+      with:
+        context: .
+        push: false
+        tags: ci

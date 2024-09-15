@@ -1,32 +1,23 @@
 from logging import getLogger
 
 from discord.ext import tasks
-from discord.ext.commands import Cog
-from typing import TYPE_CHECKING
-
-if TYPE_CHECKING:
-    from discord.ext.commands import Bot, Context
-
-    _base = Cog["Context"]
-else:
-    _base = Cog
+from discord.ext.commands import Cog, Bot
 
 logger = getLogger(__name__)
 
 
-class BaseCog(_base):
-    def __init__(self, bot: "Bot[Context]") -> None:
+class BaseCog(Cog):
+    def __init__(self, bot: Bot) -> None:
         self._bot = bot
 
     @property
-    def bot(self) -> "Bot[Context]":
+    def bot(self) -> Bot:
         return self._bot
 
 
 class UserTrackingCog(BaseCog):
-    def __init__(self, bot: "Bot[Context]") -> None:
+    def __init__(self, bot: Bot) -> None:
         super().__init__(bot)
-        # pylint: disable=no-member
         self.grab_user_info.start()
 
     @tasks.loop(minutes=1.0)
@@ -43,11 +34,11 @@ class UserTrackingCog(BaseCog):
             user_objs[-1].last_known_account_name = (
                 str(user) or user_objs[-1].last_known_account_name
             )
-        await DiscordUser.async_qs().async_bulk_update(
+        await DiscordUser.objects.abulk_update(
             user_objs, ("last_known_nickname", "last_known_account_name")
         )
 
-    @grab_user_info.before_loop  # type: ignore
+    @grab_user_info.before_loop
     async def before_grab_user_info(self) -> None:
         logger.info("Waiting for bot to start before checking user info")
         await self.bot.wait_until_ready()

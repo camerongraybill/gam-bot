@@ -3,7 +3,7 @@ from typing import Union
 
 from discord import RawReactionActionEvent, TextChannel, GroupChannel, PartialEmoji
 from discord.ext import commands
-from discord.ext.commands import Context
+from discord.ext.commands import Context, Bot
 
 from discord_bot.checks import is_in_channel
 from discord_bot.cog import BaseCog
@@ -30,26 +30,26 @@ class SocialScoreCog(BaseCog):
         if isinstance(channel, (TextChannel, GroupChannel)):
             message = await channel.fetch_message(payload.message_id)
             if message.author.id != payload.user_id:
-                score: SocialScore = (
-                    await SocialScore.objects.async_get_or_create(
+                score = (
+                    await SocialScore.objects.aget_or_create(
                         user=await DiscordUser.objects.lookup_user(message.author.id)
                     )
                 )[0]
                 emoji_id = str(payload.emoji.id or payload.emoji)
                 try:
                     logger.info(emoji_id)
-                    emoji_score = await EmojiScore.objects.async_get(emoji_id=emoji_id)
+                    emoji_score = await EmojiScore.objects.aget(emoji_id=emoji_id)
                     logger.debug("User's current social score is %d", score.score)
                     score.score += emoji_score.score * score_multiplier
                     logger.debug("User's new social score is %d", score.score)
-                    await score.async_save()
+                    await score.asave()
                 except EmojiScore.DoesNotExist:
                     logger.debug("No emoji score registered for emoji ID %s", emoji_id)
 
     @commands.command(help="Shows your current social score")
-    async def show_score(self, ctx: Context) -> None:
-        score: SocialScore = (
-            await SocialScore.objects.async_get_or_create(
+    async def show_score(self, ctx: Context[Bot]) -> None:
+        score = (
+            await SocialScore.objects.aget_or_create(
                 user=await DiscordUser.objects.lookup_user(ctx.message.author.id)
             )
         )[0]
@@ -58,7 +58,7 @@ class SocialScoreCog(BaseCog):
     @commands.command(help="Assigns a new social score value to a given emoji")
     @is_in_channel({"bot-commands"})
     async def register_score(
-        self, ctx: Context, emoji: Union[PartialEmoji, str], score: int
+        self, ctx: Context[Bot], emoji: Union[PartialEmoji, str], score: int
     ) -> None:
         if isinstance(emoji, PartialEmoji):
             emoji_id = str(emoji.id)
@@ -66,7 +66,7 @@ class SocialScoreCog(BaseCog):
             emoji_id = emoji
         logger.info("Registering emoji_id %s with score %d", emoji_id, score)
         # We don't actually need the resulting object here
-        await EmojiScore.objects.async_update_or_create(
+        await EmojiScore.objects.aupdate_or_create(
             emoji_id=emoji_id, defaults={"score": score}
         )
         await ctx.message.reply("Your emoji score was registered/updated successfully")

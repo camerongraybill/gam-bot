@@ -1,33 +1,34 @@
 name: Linting
 
 on:
-  push:
-    branches: [ main ]
   pull_request:
     branches: [ main ]
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
-
     steps:
-    - uses: actions/checkout@v2
-    - name: Set up Python 3.10
-      uses: actions/setup-python@v2
-      with:
-        python-version: "3.10"
-    - name: Set up environment
-      run: |
-        pip install poetry
-        poetry install --with dev --without release
-    - name: Running Bandit
-      run: poetry run bandit -r ./src
-    - name: Running Black
-      run: poetry run black ./src --check
-#    - name: Running Mypy
-#      run: poetry run mypy
-    - name: Running Pylint
-      run: cd src && poetry run pylint --rcfile ../pyproject.toml ./gam/ ./manage.py  ./async_helpers/ ./easy_messages/ ./gam_coins/ ./lmgtfy/ ./social_score/ ./dev_utils/ && cd ..
-    - name: Running Pytest
-      run: poetry run pytest
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+        with:
+          python-version: "3.12"
+      - name: Install and configure Poetry
+        uses: snok/install-poetry@v1
+
+      - name: Set up environment
+        run: poetry install
+
+      - name: Running Ruff Format
+        run: poetry run ruff format --check
+
+      - name: Running Mypy
+        working-directory: src
+        run: poetry run mypy --config-file ../pyproject.toml .
+
+      - name: Ruff Lint
+        working-directory: src
+        run: poetry run ruff check
+
+      - name: Running Tests
+        working-directory: src
+        run: poetry run manage test

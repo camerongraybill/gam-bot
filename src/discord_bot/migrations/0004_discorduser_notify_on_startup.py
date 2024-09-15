@@ -4,7 +4,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("discord_bot", "0003_discorduser_last_known_account_name"),
     ]

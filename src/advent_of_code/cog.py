@@ -1,9 +1,10 @@
 from datetime import date
 from html.parser import HTMLParser
 from logging import getLogger
-from typing import Optional, Union
+from typing import Optional
 
-from discord import TextChannel, Message, DMChannel, GroupChannel
+from discord import TextChannel, DMChannel, GroupChannel
+from discord.abc import MessageableChannel
 from discord.ext import commands, tasks
 from discord.ext.commands import Context, Bot
 
@@ -15,21 +16,6 @@ from django.utils.timezone import now
 from discord.utils import get
 
 logger = getLogger(__name__)
-
-
-async def create_thread(
-    channel: TextChannel, name: str, minutes: int, message: Message
-) -> None:
-    async with ClientSession() as session:
-        async with session.post(
-            url=f"https://discord.com/api/v9/channels/{channel.id}/messages/{message.id}/threads",
-            json={"name": name, "type": 11, "auto_archive_duration": minutes},
-            headers={
-                "authorization": "Bot " + channel._state.http.token,  # type: ignore
-                "content-type": "application/json",
-            },
-        ):
-            pass
 
 
 class _AOCHTMLParser(HTMLParser):
@@ -58,9 +44,8 @@ AOC_BASE_URL = URL("https://adventofcode.com/")
 
 
 class AdventOfCodeCog(BaseCog):
-    def __init__(self, bot: "Bot[Context]") -> None:
+    def __init__(self, bot: Bot) -> None:
         super().__init__(bot)
-        # pylint: disable=no-member
         self.check_post_for_day.start()
         self._last_posted_day: Optional[date] = None
 
@@ -84,7 +69,7 @@ class AdventOfCodeCog(BaseCog):
                     )
                     self._last_posted_day = today
 
-    @check_post_for_day.before_loop  # type: ignore
+    @check_post_for_day.before_loop
     async def before_check_post_for_day(self) -> None:
         logger.info("Waiting for bot to start before checking to post AOC message")
         await self.bot.wait_until_ready()
@@ -110,14 +95,17 @@ class AdventOfCodeCog(BaseCog):
     @classmethod
     async def _send_aoc_message(
         cls,
-        channel: Union[TextChannel, DMChannel, GroupChannel],
+        channel: MessageableChannel,
         day: date,
     ) -> None:
         message_text, thread_name = await cls._build_aoc_message(day)
         sent_message = await channel.send(message_text)
         if isinstance(channel, TextChannel) and thread_name is not None:
-            await create_thread(channel, thread_name, 60 * 24 * 3, sent_message)
+            await sent_message.create_thread(
+                name=thread_name,
+                auto_archive_duration=4320,
+            )
 
     @commands.command(help="Post an advent of code message")
-    async def aoc_message(self, ctx: Context, day: int, year: int) -> None:
+    async def aoc_message(self, ctx: Context[Bot], day: int, year: int) -> None:
         await self._send_aoc_message(ctx.channel, date(day=day, year=year, month=12))

@@ -1,32 +1,27 @@
 from typing import Collection
-from discord.channel import DMChannel
 from discord.ext import commands
+from discord.ext.commands import Bot
+from discord.ext.commands._types import Check
 from discord.ext.commands.context import Context
 
 from django.conf import settings
 
-from typing import TYPE_CHECKING
 
-if TYPE_CHECKING:
-    from discord.ext.commands.core import _CheckDecorator
-
-
-def is_in_channel(
+def is_in_channel[T: Bot](
     command_channels: Collection[str],
-) -> "_CheckDecorator":
+) -> Check[Context[T]]:
     @commands.check
-    async def predicate(ctx: Context) -> bool:
-        if command_channels and ctx.channel and not isinstance(ctx.channel, DMChannel):
+    async def predicate(ctx: Context[T]) -> bool:
+        if command_channels and ctx.channel and hasattr(ctx.channel, "name"):
             return ctx.channel.name in command_channels
         return True
 
     return predicate
 
 
-def only_debug() -> "_CheckDecorator":
+def only_debug[T: Bot]() -> Check[Context[T]]:
     @commands.check
-    # pylint: disable=unused-argument
-    async def predicate(ctx: Context) -> bool:
+    async def predicate(ctx: Context[T]) -> bool:
         return settings.DEBUG
 
     return predicate

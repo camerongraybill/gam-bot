@@ -1,7 +1,5 @@
-# pylint: disable=unused-wildcard-import, wildcard-import
-
-from ._django import *
-from ._gam import *
+from ._django import *  # noqa: F403
+from ._gam import *  # noqa: F403
 
 from os import environ
 
@@ -12,7 +10,7 @@ STATIC_ROOT = environ.get("STATIC_ROOT")
 SECRET_KEY = environ["SECRET_KEY"]
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.postgresql_psycopg2",
+        "ENGINE": "django.db.backends.postgresql",
         "NAME": environ["DB_NAME"],
         "USER": environ["DB_USER"],
         "PASSWORD": environ["DB_PASSWORD"],

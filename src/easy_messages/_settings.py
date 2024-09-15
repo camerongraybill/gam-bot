@@ -6,7 +6,6 @@ from django.conf import settings as django_settings
 CommandConfig = tuple[str, Optional[set[str]], Sequence[str]]
 
 
-# pylint: disable=too-few-public-methods
 class _Settings:
     @cached_property
     def COMMANDS(self) -> Collection[CommandConfig]:

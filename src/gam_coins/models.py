@@ -1,22 +1,20 @@
 from django.db import models
 
-from async_helpers.managers import AsyncEnabledManager
-from async_helpers.mixins import AsyncModelMixin
 from discord_bot.models import DiscordUser
 from .managers import AccountManager
 
 
-class Account(models.Model, AsyncModelMixin):
+class Account(models.Model):
     user = models.OneToOneField(DiscordUser, primary_key=True, on_delete=models.CASCADE)
     coins = models.PositiveIntegerField(default=0)
 
-    objects = AccountManager["Account"]()
+    objects = AccountManager()
 
     def __str__(self) -> str:
         return f"{self.user}'s Account"
 
 
-class Prediction(models.Model, AsyncModelMixin):
+class Prediction(models.Model):
     class State(models.IntegerChoices):
         ACCEPTING_WAGERS = 1
         WAITING_FOR_RESOLUTION = 2
@@ -28,17 +26,13 @@ class Prediction(models.Model, AsyncModelMixin):
     )  # This is the ID of the message the bot sends that replies should go to
     state = models.IntegerField(choices=State.choices, default=State.ACCEPTING_WAGERS)
 
-    objects = AsyncEnabledManager["Prediction"]()
-
     def __str__(self) -> str:
         return self.prediction_text
 
 
-class PredictionChoice(models.Model, AsyncModelMixin):
+class PredictionChoice(models.Model):
     prediction = models.ForeignKey(Prediction, on_delete=models.CASCADE)
     choice = models.TextField(blank=False, null=False)
-
-    objects = AsyncEnabledManager["PredictionChoice"]()
 
     class Meta:
         unique_together = ("prediction", "choice")
@@ -49,7 +43,7 @@ class PredictionChoice(models.Model, AsyncModelMixin):
         )
 
 
-class Wager(models.Model, AsyncModelMixin):
+class Wager(models.Model):
     account = models.ForeignKey(
         Account, on_delete=models.CASCADE
     )  # Person who made the wager
@@ -57,8 +51,6 @@ class Wager(models.Model, AsyncModelMixin):
     choice = models.ForeignKey(
         PredictionChoice, on_delete=models.CASCADE
     )  # Choice they're wagering on
-
-    objects = AsyncEnabledManager["Wager"]()
 
     def __str__(self) -> str:
         return f"{self.account.user} wagered {self.amount} on {self.choice}"

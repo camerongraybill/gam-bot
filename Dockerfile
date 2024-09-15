@@ -18,6 +18,7 @@ RUN /venv/bin/pip install -U pip
 RUN ./tools_venv/bin/pip install -U pip
 RUN /venv/bin/pip install wheel
 RUN ./tools_venv/bin/pip install wheel poetry==1.8.3
+RUN poetry self add poetry-plugin-export
 
 # Build and install dependencies to the output virtualenv first so we don't have to re-do it when the dependencies do not change
 COPY ./poetry.lock ./poetry.lock
@@ -29,7 +30,7 @@ RUN PATH=/home/build/tools_venv/bin:$PATH /venv/bin/pip install -r ./requirement
 COPY --chown=build:users ./src ./src
 ARG APP_VERSION
 RUN sed -i -e 's/v0.0.0/v$APP_VERSION/g' pyproject.toml
-RUN PATH=/home/build/tools_venv/bin:$PATH ../tools_venv/bin/poetry build
+RUN PATH=/home/build/tools_venv/bin:$PATH ./tools_venv/bin/poetry build
 
 # Install in the output virtualenv, which will eventually be copied to the final image
 RUN PATH=/home/build/tools_venv/bin:$PATH /venv/bin/pip install ./dist/*.whl

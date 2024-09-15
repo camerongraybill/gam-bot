@@ -28,5 +28,5 @@ class Command(BaseCommand):
         async with bot:
             await bot.start(discord_key)
 
-    def handle(self, *args: Any, **kwargs: Any) -> None:
-        run(self.amain(**kwargs))
+    def handle(self, *args: Any, discord_key: str, **kwargs: Any) -> None:
+        run(self.amain(discord_key))

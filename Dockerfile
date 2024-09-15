@@ -30,7 +30,7 @@ RUN PATH=/home/build/tools_venv/bin:$PATH /venv/bin/pip install -r ./requirement
 # Copy in all source code so we can build the wheel
 COPY --chown=build:users ./src ./src
 ARG APP_VERSION
-RUN sed -i -e 's/v0.0.0/v$APP_VERSION/g' pyproject.toml
+RUN sed -i -e 's/v0.0.0/v${APP_VERSION}/g' pyproject.toml
 RUN PATH=/home/build/tools_venv/bin:$PATH ./tools_venv/bin/poetry build
 
 # Install in the output virtualenv, which will eventually be copied to the final image

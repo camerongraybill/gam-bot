@@ -30,6 +30,7 @@ mypy = "^1.11.2"
 django-stubs = "^5.0.4"
 ruff = "^0.6.5"
 psycopg = { extras = ["binary"], version = "^3.2.1" }
+dunamai = "^1.22.0"
 
 
 [tool.poetry.group.release]
@@ -40,13 +41,9 @@ psycopg = { extras = ["c"], version = "^3.2.1" }
 uvloop = "^0.20.0"
 
 [build-system]
-requires = ["poetry-core>=1.0.0", "poetry-dynamic-versioning>=1.0.0,<2.0.0"]
-build-backend = "poetry_dynamic_versioning.backend"
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
 
-[tool.poetry-dynamic-versioning]
-enable = true
-vcs = "git"
-style = "semver"
 
 [tool.mypy]
 files = "src"

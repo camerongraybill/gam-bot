@@ -16,19 +16,19 @@ RUN python3 -m venv ./tools_venv
 # We always want the latest pip, but the rest of our build dependencies should be locked.
 RUN /venv/bin/pip install -U pip
 RUN ./tools_venv/bin/pip install -U pip
-RUN /venv/bin/pip install wheel==0.37.0
-RUN ./tools_venv/bin/pip install wheel==0.37.0 poetry==1.6.1
+RUN /venv/bin/pip install wheel
+RUN ./tools_venv/bin/pip install wheel poetry==1.8.3
 
 # Build and install dependencies to the output virtualenv first so we don't have to re-do it when the dependencies do not change
 COPY ./poetry.lock ./poetry.lock
 COPY ./pyproject.toml ./pyproject.toml
 RUN ./tools_venv/bin/poetry export --with release --without dev -f 'requirements.txt' -o ./requirements.txt --without-hashes
 RUN PATH=/home/build/tools_venv/bin:$PATH /venv/bin/pip install -r ./requirements.txt
-RUN ./tools_venv/bin/pip install poetry-dynamic-versioning==0.13.1
 
 # Copy in all source code so we can build the wheel
-COPY --chown=build:users . ./src/
-WORKDIR ./src/
+COPY --chown=build:users ./src ./src
+ARG APP_VERSION
+RUN sed -i -e 's/v0.0.0/v$APP_VERSION/g' pyproject.toml
 RUN PATH=/home/build/tools_venv/bin:$PATH ../tools_venv/bin/poetry build
 
 # Install in the output virtualenv, which will eventually be copied to the final image

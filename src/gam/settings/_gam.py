@@ -6,7 +6,7 @@ from typing import Sequence, Optional
 EASY_MESSAGES: Sequence[tuple[str, Optional[set[str]], Sequence[str]]] = (
     (
         "assemble",
-        {"heroes-guild"},
+        {"recruiting-board", "heroes-guild"},
         (
             "<@&471829212626681866> Assemble!",
             "https://www.camerongraybill.dev/assemble.jpg",

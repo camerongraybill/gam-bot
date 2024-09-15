@@ -107,6 +107,6 @@ class AdventOfCodeCog(BaseCog):
                 auto_archive_duration=4320,
             )
 
-    @commands.command(help="Post an advent of code message")
+    @commands.command(help="Post an advent of code message", pass_context=True)
     async def aoc_message(self, ctx: Context[Bot], day: int, year: int) -> None:
         await self._send_aoc_message(ctx.channel, date(day=day, year=year, month=12))

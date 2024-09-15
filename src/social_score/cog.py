@@ -46,7 +46,7 @@ class SocialScoreCog(BaseCog):
                 except EmojiScore.DoesNotExist:
                     logger.debug("No emoji score registered for emoji ID %s", emoji_id)
 
-    @commands.command(help="Shows your current social score")
+    @commands.command(help="Shows your current social score", pass_context=True)
     async def show_score(self, ctx: Context[Bot]) -> None:
         score = (
             await SocialScore.objects.aget_or_create(
@@ -55,7 +55,9 @@ class SocialScoreCog(BaseCog):
         )[0]
         await ctx.send(f"Your social score is currently {score.score}")
 
-    @commands.command(help="Assigns a new social score value to a given emoji")
+    @commands.command(
+        help="Assigns a new social score value to a given emoji", pass_context=True
+    )
     @is_in_channel({"bot-commands"})
     async def register_score(
         self, ctx: Context[Bot], emoji: Union[PartialEmoji, str], score: int

@@ -31,4 +31,4 @@ def build_command(
     if channels:
         f = is_in_channel(channels)(f)
 
-    return commands.command(name=name)(f)
+    return commands.command(name=name, pass_context=True)(f)

@@ -42,7 +42,6 @@ EASY_MESSAGES: Sequence[tuple[str, Optional[set[str]], Sequence[str]]] = (
 
 DISCORD_COGS = [
     "lmgtfy.cog.LMGTFYCog",
-    "easy_messages.cog.EasyCog",
     "social_score.cog.SocialScoreCog",
     "gam_coins.cog.GamCoinsCog",
     "discord_bot.cog.UserTrackingCog",

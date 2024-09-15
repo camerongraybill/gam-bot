@@ -13,15 +13,11 @@ from discord.ext.commands import Command, Bot
 
 
 class EasyCog(BaseCog):
-    def __new__(cls, bot: Bot) -> Any:
-        for cmd in settings.COMMANDS:
-            cls.__cog_commands__.append(build_command(*cmd))
-        return super().__new__(cls, bot)
-
+    """ Attributes are dynamically defined on import """
 
 def build_command(
     name: str, channels: Optional[set[str]], response: Sequence[str]
-) -> Command[EasyCog, Any, Any]:
+) -> None:
     async def _(self: EasyCog, ctx: Context[Bot]) -> None:
         for resp in response:
             await ctx.send(resp)
@@ -31,4 +27,7 @@ def build_command(
     if channels:
         f = is_in_channel(channels)(f)
 
-    return commands.command(name=name)(f)
+    setattr(EasyCog, name, commands.command(name=name)(f))
+
+for cmd in settings.COMMANDS:
+    build_command(*cmd)

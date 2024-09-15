@@ -23,7 +23,7 @@ def build_command(
     name: str, channels: Optional[set[str]], response: Sequence[str]
 ) -> Command[EasyCog, Any, Any]:
     async def _(*args, **kwargs) -> None:
-        print(args, kwargs)
+        print("HERE IS THE CALL", args, kwargs)
         for resp in response:
             await kwargs.get("ctx").send(resp)
 

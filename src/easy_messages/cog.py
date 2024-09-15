@@ -22,9 +22,10 @@ class EasyCog(BaseCog):
 def build_command(
     name: str, channels: Optional[set[str]], response: Sequence[str]
 ) -> Command[EasyCog, Any, Any]:
-    async def _(self: EasyCog, ctx: Context[Bot]) -> None:
+    async def _(*args, **kwargs) -> None:
+        print(args, kwargs)
         for resp in response:
-            await ctx.send(resp)
+            await kwargs.get("ctx").send(resp)
 
     f = _
     f.__name__ = name

@@ -47,11 +47,11 @@ class RemindMeCog(BaseCog):
                 "No channel was found for %d, doing nothing.",
                 reminder.initial_channel_id,
             )
-            await reminder.async_delete()
+            await reminder.adelete()
         await channel.send(
             f'<@{reminder.creator.discord_id}>, I am reminding you about "{reminder.reminder_text}"'
         )
-        await reminder.async_delete()
+        await reminder.adelete()
 
     @commands.command(
         help="Create a reminder to get pinged about something in the future"
@@ -76,7 +76,7 @@ class RemindMeCog(BaseCog):
             reminder_time=reminder_time,
             initial_channel_id=ctx.channel.id,
         )
-        await reminder.async_save()
+        await reminder.asave()
         await ctx.channel.send(f"Got it, I will remind you in {time_text}")
         start_time = datetime.datetime.now()
         delta = (reminder_time - start_time).seconds

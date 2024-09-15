@@ -1,5 +1,7 @@
 FROM python:3.12-alpine AS just-python
 RUN apk upgrade --no-cache
+# Needed for both build and deploy
+RUN apk add --no-cache libpq
 
 FROM just-python AS build-image
 # build-only deps

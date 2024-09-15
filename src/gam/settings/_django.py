@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     "social_score",
     "gam_coins",
     "advent_of_code",
+    "remind_me",
 ]
 
 MIDDLEWARE = [

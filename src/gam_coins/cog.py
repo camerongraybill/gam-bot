@@ -22,9 +22,7 @@ class GamCoinsCog(BaseCog):
         super().__init__(bot)
         self.check_user_presence.start()
 
-    @commands.command(
-        help="Create a new prediction people can wager on", pass_context=True
-    )
+    @commands.command(help="Create a new prediction people can wager on")
     async def make_prediction(
         self, ctx: Context[Bot], prediction_text: str, options: Optional[str]
     ) -> None:
@@ -46,14 +44,12 @@ class GamCoinsCog(BaseCog):
 
     @commands.command(
         help="Special command for making a wager with all your GamCoins",
-        pass_context=True,
     )
     async def all_in(self, ctx: Context[Bot], choice: str) -> None:
         await self.handle_wager(ctx, choice, -1, True)
 
     @commands.command(
         help="Reply to a prediction message from the bot to make your wager",
-        pass_context=True,
     )
     async def make_wager(self, ctx: Context[Bot], choice: str, amount: int) -> None:
         await self.handle_wager(ctx, choice, amount, False)
@@ -129,7 +125,6 @@ class GamCoinsCog(BaseCog):
 
     @commands.command(
         help="Reply to a prediction message from the bot to prevent new wagers from being placed",
-        pass_context=True,
     )
     async def close(self, ctx: Context[Bot]) -> None:
         if ctx.message.reference:
@@ -159,7 +154,7 @@ class GamCoinsCog(BaseCog):
                 "User tried to close prediction without replying to a prediction thread."
             )
 
-    @commands.command(help="List all open predictions", pass_context=True)
+    @commands.command(help="List all open predictions")
     async def list_predictions(self, ctx: Context[Bot]) -> None:
         predictions = [
             p
@@ -174,7 +169,7 @@ class GamCoinsCog(BaseCog):
                 "Open predictions:" + "\n" + "\n".join([str(p) for p in predictions])
             )
 
-    @commands.command(pass_context=True)
+    @commands.command()
     @only_debug()
     async def add_coins(self, ctx: Context[Bot], amount: int) -> None:
         account = await Account.objects.lookup_account(ctx.message.author.id)
@@ -183,7 +178,6 @@ class GamCoinsCog(BaseCog):
 
     @commands.command(
         help="Reply to a prediction message from the bot to cancel all wagers currently placed",
-        pass_context=True,
     )
     async def cancel_prediction(self, ctx: Context[Bot]) -> None:
         if ctx.message.reference:
@@ -222,7 +216,6 @@ class GamCoinsCog(BaseCog):
 
     @commands.command(
         help="Reply to a prediction message from the bot with the actual outcome to pay out the winnings",
-        pass_context=True,
     )
     async def resolve(self, ctx: Context[Bot], correct_choice: str) -> None:
         # Resolves a prediction thread by getting all users that made the correct choice
@@ -330,9 +323,7 @@ class GamCoinsCog(BaseCog):
         logger.info("Waiting for bot to start before checking user presence")
         await self.bot.wait_until_ready()
 
-    @commands.command(
-        help="Get a DM from the bot with your GamCoin balance", pass_context=True
-    )
+    @commands.command(help="Get a DM from the bot with your GamCoin balance")
     async def check_balance(self, ctx: Context[Bot]) -> None:
         account = await Account.objects.lookup_account(discord_id=ctx.message.author.id)
         dm_channel = ctx.author.dm_channel or await ctx.author.create_dm()

@@ -22,14 +22,13 @@ class EasyCog(BaseCog):
 def build_command(
     name: str, channels: Optional[set[str]], response: Sequence[str]
 ) -> Command[EasyCog, Any, Any]:
-    async def _(*args, **kwargs) -> None:
-        print("HERE IS THE CALL", args, kwargs)
+    async def _(self: EasyCog, ctx: Context[Bot]) -> None:
         for resp in response:
-            await kwargs.get("ctx").send(resp)
+            await ctx.send(resp)
 
     f = _
     f.__name__ = name
     if channels:
         f = is_in_channel(channels)(f)
 
-    return commands.command(name=name, pass_context=True)(f)
+    return commands.command(name=name)(f)

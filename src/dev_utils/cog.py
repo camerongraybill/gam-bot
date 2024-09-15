@@ -7,9 +7,7 @@ from importlib.metadata import version
 
 
 class DevUtilsCog(BaseCog):
-    @commands.command(
-        help="Subscribe to getting a DM when the bot starts up", pass_context=True
-    )
+    @commands.command(help="Subscribe to getting a DM when the bot starts up")
     async def subscribe_to_deploy(self, ctx: Context[Bot]) -> None:
         user, _ = await DiscordUser.objects.aget_or_create(
             discord_id=ctx.message.author.id
@@ -17,9 +15,7 @@ class DevUtilsCog(BaseCog):
         user.notify_on_startup = True
         await user.asave()
 
-    @commands.command(
-        help="Unsubscribe from getting a DM when the bot starts up", pass_context=True
-    )
+    @commands.command(help="Unsubscribe from getting a DM when the bot starts up")
     async def unsubscribe_to_deploy(self, ctx: Context[Bot]) -> None:
         user, _ = await DiscordUser.objects.aget_or_create(
             discord_id=ctx.message.author.id
@@ -27,7 +23,7 @@ class DevUtilsCog(BaseCog):
         user.notify_on_startup = False
         await user.asave()
 
-    @commands.command(help="Link to source repository", pass_context=True)
+    @commands.command(help="Link to source repository")
     async def source(self, ctx: Context[Bot]) -> None:
         await ctx.message.channel.send(
             "My source can be found at: https://github.com/camerongraybill/gam-bot"

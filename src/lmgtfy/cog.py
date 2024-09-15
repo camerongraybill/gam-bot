@@ -8,7 +8,6 @@ from yarl import URL
 class LMGTFYCog(BaseCog):
     @commands.command(
         help="Creates a LMGTFY link for the last message sent or the message you reply to",
-        pass_context=True,
     )
     async def lmgtfy(self, ctx: Context[Bot]) -> None:
         message = ctx.message

@@ -1,10 +1,9 @@
 from datetime import date
 from html.parser import HTMLParser
 from logging import getLogger
-from typing import Optional
+from typing import Optional, TYPE_CHECKING
 
 from discord import TextChannel, DMChannel, GroupChannel
-from discord.abc import MessageableChannel
 from discord.ext import commands, tasks
 from discord.ext.commands import Context, Bot
 
@@ -15,6 +14,8 @@ from yarl import URL
 from django.utils.timezone import now
 from discord.utils import get
 
+if TYPE_CHECKING:
+    from discord.abc import MessageableChannel
 logger = getLogger(__name__)
 
 
@@ -95,7 +96,7 @@ class AdventOfCodeCog(BaseCog):
     @classmethod
     async def _send_aoc_message(
         cls,
-        channel: MessageableChannel,
+        channel: "MessageableChannel",
         day: date,
     ) -> None:
         message_text, thread_name = await cls._build_aoc_message(day)

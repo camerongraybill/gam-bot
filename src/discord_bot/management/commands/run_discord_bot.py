@@ -29,4 +29,5 @@ class Command(BaseCommand):
             await bot.start(discord_key)
 
     def handle(self, *args: Any, discord_key: str, **kwargs: Any) -> None:
+        print(discord_key)
         run(self.amain(discord_key))

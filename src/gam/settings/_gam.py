@@ -47,6 +47,7 @@ DISCORD_COGS = [
     "discord_bot.cog.UserTrackingCog",
     "dev_utils.cog.DevUtilsCog",
     "advent_of_code.cog.AdventOfCodeCog",
+    "remind_me.cog.RemindMeCog",
 ]
 
 DISCORD_KEY = getenv("DISCORD_KEY", None)

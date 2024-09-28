@@ -27,7 +27,7 @@ class RemindMeCog(BaseCog):
             if existing_reminder.reminder_time <= start_time:
                 await self._send_reminder(existing_reminder)
             else:
-                delta = (existing_reminder.reminder_time - start_time).seconds
+                delta = (existing_reminder.reminder_time - start_time).total_seconds()
                 self._create_timer(delta, existing_reminder)
 
     def _create_timer(self, delta: float, reminder: Reminder) -> None:
@@ -55,10 +55,18 @@ class RemindMeCog(BaseCog):
         await reminder.adelete()
 
     @commands.command(
-        help="Create a reminder to get pinged about something in the future"
+        help="Create a reminder to get pinged about something in the future. For examples of valid time syntax refer to https://dateparser.readthedocs.io/en/latest/"
     )
     async def remindme(
-        self, ctx: Context[Bot], time_text: str, reminder_text: str
+        self,
+        ctx: Context[Bot],
+        time_text: str = commands.parameter(
+            description="Time you want to be reminded at."
+        ),
+        *,
+        reminder_text: str = commands.parameter(
+            description="What you want to be reminded of."
+        ),
     ) -> None:
         start_time = django.utils.timezone.now()
         settings: dateparser._Settings = {
@@ -69,11 +77,16 @@ class RemindMeCog(BaseCog):
         reminder_time = dateparser.parse(time_text, settings=settings)
         if not reminder_time:
             # We couldn't parse their reminder time so log and let user known
-            logger.warn("User provided an invalid reminder time (%s)", time_text)
+            logger.warning("User provided an invalid reminder time (%s)", time_text)
             await ctx.message.reply(
                 "Your reminder time is invalid, please make sure it is correct and try again!"
             )
             return
+        logger.debug(
+            "User provided date string '%s' that got parsed as '%s'",
+            time_text,
+            reminder_time,
+        )
         reminder = await Reminder.objects.acreate(
             creator_id=ctx.author.id,
             reminder_text=reminder_text,
@@ -81,7 +94,7 @@ class RemindMeCog(BaseCog):
             initial_channel_id=ctx.channel.id,
         )
         await ctx.channel.send(f"Got it, I will remind you in {time_text}")
-        delta = (reminder_time - start_time).seconds
+        delta = (reminder_time - start_time).total_seconds()
         self._create_timer(delta, reminder)
 
     @commands.command(help="List all the reminders you have currently set")
@@ -110,11 +123,12 @@ class RemindMeCog(BaseCog):
     @commands.command(help="Delete a particular reminder you have")
     async def delete_reminder(self, ctx: Context[Bot], reminder_id: int) -> None:
         try:
-            await (
+            reminder_to_delete = await (
                 Reminder.objects.filter(creator_id=ctx.author.id)
-                .order_by("reminder_time")[reminder_id - 1 : reminder_id]
-                .adelete()
+                .order_by("reminder_time")[reminder_id : reminder_id + 1]
+                .aget()
             )
+            await reminder_to_delete.adelete()
             await ctx.send("Reminder has been deleted")
         except Reminder.DoesNotExist:
             await ctx.send("No reminder exists for that ID!")

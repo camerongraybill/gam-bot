@@ -22,15 +22,15 @@ manage = "manage:main"
 
 [tool.poetry.dependencies]
 python = "^3.12"
-django = "^5.1.1"
+django = "^5.2"
 discord-py = "^2.4.0"
 yarl = "^1.11.1"
 dateparser = "^1.2.0"
 tabulate = "^0.9.0"
 
 [tool.poetry.group.dev.dependencies]
-mypy = "^1.11.2"
-django-stubs = "^5.0.4"
+mypy = "^1.13"
+django-stubs = "^5.2"
 ruff = "^0.6.5"
 psycopg = { extras = ["binary"], version = "~3.2.13" }
 dunamai = "^1.22.0"

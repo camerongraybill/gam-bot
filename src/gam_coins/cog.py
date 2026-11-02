@@ -57,7 +57,7 @@ class GamCoinsCog(BaseCog):
     async def handle_wager(
         self, ctx: Context[Bot], choice: str, amount: int, all_in: bool
     ) -> None:
-        if ctx.message.reference:
+        if ctx.message.reference and ctx.message.reference.message_id is not None:
             thread_id = ctx.message.reference.message_id
             account = await Account.objects.lookup_account(ctx.message.author.id)
             if not all_in and amount > account.coins:
@@ -127,7 +127,7 @@ class GamCoinsCog(BaseCog):
         help="Reply to a prediction message from the bot to prevent new wagers from being placed",
     )
     async def close(self, ctx: Context[Bot]) -> None:
-        if ctx.message.reference:
+        if ctx.message.reference and ctx.message.reference.message_id is not None:
             thread_id = ctx.message.reference.message_id
             try:
                 prediction = await Prediction.objects.aget(thread_id=thread_id)
@@ -180,7 +180,7 @@ class GamCoinsCog(BaseCog):
         help="Reply to a prediction message from the bot to cancel all wagers currently placed",
     )
     async def cancel_prediction(self, ctx: Context[Bot]) -> None:
-        if ctx.message.reference:
+        if ctx.message.reference and ctx.message.reference.message_id is not None:
             thread_id = ctx.message.reference.message_id
             try:
                 prediction = await Prediction.objects.aget(thread_id=thread_id)
@@ -220,7 +220,7 @@ class GamCoinsCog(BaseCog):
     async def resolve(self, ctx: Context[Bot], correct_choice: str) -> None:
         # Resolves a prediction thread by getting all users that made the correct choice
         # and then assigning a payout based on their relative pot contributions
-        if ctx.message.reference:
+        if ctx.message.reference and ctx.message.reference.message_id is not None:
             try:
                 prediction = await Prediction.objects.prefetch_related(
                     "predictionchoice_set",

@@ -3,6 +3,8 @@ from logging import getLogger
 from discord.ext import tasks
 from discord.ext.commands import Cog, Bot
 
+from .db import refresh_db_connections, survive_database_outage
+
 logger = getLogger(__name__)
 
 
@@ -21,6 +23,7 @@ class UserTrackingCog(BaseCog):
         self.grab_user_info.start()
 
     @tasks.loop(minutes=1.0)
+    @survive_database_outage
     async def grab_user_info(self) -> None:
         # Django complains about importing this too early so we do it locally instead.
         from .models import DiscordUser
@@ -42,3 +45,15 @@ class UserTrackingCog(BaseCog):
     async def before_grab_user_info(self) -> None:
         logger.info("Waiting for bot to start before checking user info")
         await self.bot.wait_until_ready()
+
+
+class DatabaseConnectionCog(BaseCog):
+    """Keeps commands, listeners and tasks working after a database restart."""
+
+    def __init__(self, bot: Bot) -> None:
+        super().__init__(bot)
+        self.refresh_connections.start()
+
+    @tasks.loop(seconds=15.0)
+    async def refresh_connections(self) -> None:
+        await refresh_db_connections()

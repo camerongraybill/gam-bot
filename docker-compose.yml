@@ -13,7 +13,7 @@ services:
     restart: always
     ports:
       - "$HTTP_PORT:8000"
-    entrypoint: "manage runserver 0.0.0.0:8000"
+    entrypoint: "gunicorn gam.wsgi:application --bind 0.0.0.0:8000 --workers 2"
     environment:
       - DB_PASSWORD=$POSTGRES_PASSWORD
       - DB_USER=$POSTGRES_USER

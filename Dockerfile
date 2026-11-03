@@ -45,8 +45,13 @@ RUN PATH=/home/build/tools_venv/bin:$PATH /venv/bin/pip install ./dist/*.whl
 FROM just-python AS runtime-image
 RUN adduser -S run
 COPY --from=build-image --chown=run:users /venv /venv
-USER run:users
 # Configure environment to run
 ENV PATH=/venv/bin:$PATH
 ENV DJANGO_SETTINGS_MODULE=gam.settings.deployment
+ENV STATIC_ROOT=/static
+# Build the static files into the image so the web container can serve them itself.
+# These values only let the settings load. collectstatic never connects to the database.
+RUN SECRET_KEY=build-only DB_NAME=build-only DB_USER=build-only DB_PASSWORD=build-only \
+    DB_HOST=build-only DB_PORT=5432 ALLOWED_HOST=build-only manage collectstatic --no-input
+USER run:users
 ENTRYPOINT ["manage", "migrate", "&&", "manage", "run_discord_bot"]

@@ -45,6 +45,7 @@ DISCORD_COGS = [
     "social_score.cog.SocialScoreCog",
     "gam_coins.cog.GamCoinsCog",
     "discord_bot.cog.UserTrackingCog",
+    "discord_bot.cog.DatabaseConnectionCog",
     "dev_utils.cog.DevUtilsCog",
     "advent_of_code.cog.AdventOfCodeCog",
     "remind_me.cog.RemindMeCog",

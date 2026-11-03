@@ -9,6 +9,7 @@ from django.db.models import Q
 
 from discord_bot.checks import only_debug
 from discord_bot.cog import BaseCog
+from discord_bot.db import survive_database_outage
 from .models import Prediction, Account, Wager, PredictionChoice
 from . import settings
 
@@ -307,6 +308,7 @@ class GamCoinsCog(BaseCog):
             await ctx.message.add_reaction(settings.ERROR_REACTION)
 
     @tasks.loop(minutes=1.0)
+    @survive_database_outage
     async def check_user_presence(self) -> None:
         for user in self.bot.get_all_members():
             account = await Account.objects.lookup_account(user.id)

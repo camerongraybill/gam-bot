@@ -1,4 +1,6 @@
-FROM python:3.12-alpine AS just-python
+# Pinned because a floating tag changed underneath us and broke the build. To update, take the
+# tag and digest of a newer python:3.12.x-alpine3.y image from Docker Hub.
+FROM python:3.12.16-alpine3.24@sha256:e6dae589c1c05976188fd3bd019afd091445fc533ed2ea29001beddc7368a9c8 AS just-python
 RUN apk upgrade --no-cache
 # Needed for both build and deploy
 RUN apk add --no-cache libpq
